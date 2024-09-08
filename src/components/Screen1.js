@@ -1,21 +1,42 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { ThemeProvider } from 'styled-components';
+import GlobalStyle from '../styles/GlobalStyle';
+import theme from '../styles/theme';
+import logoIcon from '../assets/icon_big.png';
 
 const Screen1Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   height: 100vh;
   max-width: 400px; // Add a max-width for mobile
-  background-color: #ffffff;
+  max-height: 800px;
+  background-color: ${({ theme }) => theme.colors.background};
   padding: 20px;
+  border-radius: 30px;
+  border: 2px solid ${({ theme }) => theme.colors.primary};
+  margin: 20px auto; // Center horizontally and add top/bottom margin
+  box-sizing: border-box; // Include padding and border in the element's total width and height
+  position: relative; // Add this to allow absolute positioning of pseudo-element
 `;
 
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+`;
+
+
 const Logo = styled.div`
-  font-size: 24px;
-  color: #4a4af4;
+  padding-top: 40px;
+  font-size: 34px;
+  font-family: ${({ theme }) => theme.fonts.heading};
+  color: ${({ theme }) => theme.colors.primary};
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
@@ -25,13 +46,13 @@ const Logo = styled.div`
 const LogoIcon = styled.div`
   width: 60px;
   height: 60px;
-  background-image: url('path/to/your/logo.svg');
+  background-image: url(${logoIcon});
   background-size: contain;
   background-repeat: no-repeat;
   margin-bottom: 10px;
 `;
 
-const Title = styled.h2`
+const Title = styled.h3`
   font-size: 20px;
   color: #333;
   margin-bottom: 20px;
@@ -44,9 +65,13 @@ const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 8px;
   width: 100%;
-  max-width: 300px;
 `;
 
+const Form = styled.form`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
 
 const Screen1 = ({ onSubmit }) => {
     const [name, setName] = useState('');
@@ -59,13 +84,18 @@ const Screen1 = ({ onSubmit }) => {
     };
   
   return (
+    <ThemeProvider theme={theme}>
+    <GlobalStyle />
+
     <Screen1Container>
       <Logo>        
         <LogoIcon />
         essence
       </Logo>
+      <ContentWrapper>
+
       <Title>Hi. We like to know you better</Title>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <Input
           type="text"
           placeholder="Enter your name to get started..."
@@ -73,8 +103,10 @@ const Screen1 = ({ onSubmit }) => {
           onChange={(e) => setName(e.target.value)}
           required
         />
-      </form>
+      </Form>
+      </ContentWrapper>
     </Screen1Container>
+    </ThemeProvider>
   );
 };
 
