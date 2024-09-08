@@ -1,0 +1,21 @@
+---------------- First Prompt to build the app skeleton ----------------------
+
+I would like you to build a fully functional react webapp that has 3 screens.
+
+Shared screenshot has the 3 screens in the order. Please use it to build the look and feel of the app.
+
+Following are the functional requirements of the app:
+ - Screen1 is for first time visit. When a user visits first time, we should get their name in the textbox and store in
+  local storage and not show this screen during subsequent visits and take the user directly to screen 2.
+   We should also get the user's location and store in local storage
+
+ - Every time a user visits the website, if their name and location are present in local storage, 
+ make an API call to http://localhost:4000/todaysNews with userName and location as parameters. 
+ Response will contain a list of news items each containing a text headline, brief text summary of the news and an audio news objects as stream. 
+ Refer to screen 2 and build a music player like interface with first news item playing automatically and the next set of news one after another. 
+ User should be able to skip to previous and next news items. 
+
+ - User should be able to swipe left to get to screen 3, where the text version of the news is shown. 
+ On swiping up, next news item should be shown. When user is in screen 3, they should be able to swipe right to get back to screen 2 where the current news continue to play automatically from where it was left.
+
+ Can you implement this fully with right structure and relevant files for seperation of concerns following react's conventions.
