@@ -11,9 +11,8 @@ const Screen1Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  height: 100vh;
   max-width: 400px; // Add a max-width for mobile
-  max-height: 800px;
+  height: 800px;
   background-color: ${({ theme }) => theme.colors.background};
   padding: 20px;
   border-radius: 30px;

@@ -6,10 +6,25 @@ import styled from 'styled-components';
 const Screen3Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: #ffffff;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: 400px; // Add a max-width for mobile
+  height: 800px;
+  background-color: ${({ theme }) => theme.colors.background};
   padding: 20px;
-  overflow-y: auto;
+  border-radius: 30px;
+  border: 2px solid ${({ theme }) => theme.colors.primary};
+  margin: 20px auto; // Center horizontally and add top/bottom margin
+  box-sizing: border-box; // Include padding and border in the element's total width and height
+  position: relative; // Add this to allow absolute positioning of pseudo-element
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
 `;
 
 const Header = styled.div`

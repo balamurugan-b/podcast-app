@@ -12,8 +12,8 @@ const Screen2Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 100vh;
   max-width: 400px; // Add a max-width for mobile
+  height: 800px;
   background-color: ${({ theme }) => theme.colors.background};
   padding: 20px;
   border-radius: 30px;
@@ -165,7 +165,7 @@ const Screen2 = ({ newsItems, currentIndex, setCurrentIndex }) => {
         <AudioVisualizerContainer>
           <AudioVisualizer audio={audio} />
         </AudioVisualizerContainer>
-        <NewsHeadline>{trimContent(newsItems[currentIndex]?.shortSummary || '', 8)}</NewsHeadline>
+        <NewsHeadline>{trimContent(newsItems[currentIndex]?.title || '', 12)}</NewsHeadline>
         <Controls>
           <Button onClick={handlePrevious}>⏮</Button>
           <Button onClick={handlePlayPause} disabled={isLoading}>
@@ -173,9 +173,6 @@ const Screen2 = ({ newsItems, currentIndex, setCurrentIndex }) => {
           </Button>
           <Button onClick={handleNext}>⏭</Button>
         </Controls>
-        <div>
-          {Math.floor(currentTime)} / {Math.floor(duration)} seconds
-        </div>
       </Screen2Container>
       </ThemeProvider>
     );
