@@ -2,7 +2,7 @@ const theme = {
     colors: {
       primary: '#8a2be2',
       secondary: '#4b0082',
-      background: '#ffffff',
+      background: '#fdfdfd',
       text: '#000000',
       accent: '#8b0000',
     },
@@ -10,6 +10,12 @@ const theme = {
       body: 'Inter, sans-serif',
       heading: 'Comfortaa, sans-serif',
     },
-  };
-  
-  export default theme;
+    sizes: {
+      maxWidth: '400px',
+      maxHeight: '800px',
+    },
+    borderRadius: '10px',
+    padding: '20px',
+};
+
+export default theme;

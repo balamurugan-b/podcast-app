@@ -3,72 +3,85 @@ import styled from 'styled-components';
 
 const VisualizerContainer = styled.div`
   width: 100%;
-  height: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 60px;
+  background-color: #f0f0f0;
+  position: relative;
+  overflow: hidden;
 `;
 
-const Canvas = styled.canvas`
+const VisualizerCanvas = styled.canvas`
   width: 100%;
   height: 100%;
 `;
 
-const AudioVisualizer = ({ audio }) => {
+const TimeIndicator = styled.div`
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(255, 87, 34, 0.7);
+  color: white;
+  padding: 2px 4px;
+  font-size: 12px;
+`;
+
+const AudioVisualizer = ({ audioElement, audioContext }) => {
   const canvasRef = useRef(null);
-  const animationRef = useRef(null);
-  const [audioContext] = useState(() => new (window.AudioContext || window.webkitAudioContext)());
-  const [analyser] = useState(() => audioContext.createAnalyser());
-  const [sourceNode, setSourceNode] = useState(null);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
-    if (!audio) return;
+    if (!audioElement || !audioContext) return;
 
-    if (!sourceNode) {
-      const newSourceNode = audioContext.createMediaElementSource(audio);
-      newSourceNode.connect(analyser);
-      analyser.connect(audioContext.destination);
-      setSourceNode(newSourceNode);
-    }
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaElementSource(audioElement);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
 
     analyser.fftSize = 256;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const canvasCtx = canvas.getContext('2d');
 
     const draw = () => {
-      animationRef.current = requestAnimationFrame(draw);
-
+      requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
 
-      ctx.fillStyle = 'rgb(255, 255, 255)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.fillStyle = '#f0f0f0';
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const barWidth = (canvas.width / bufferLength) * 2.5;
+      const barWidth = canvas.width / bufferLength * 2.5;
       let x = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = dataArray[i] / 2;
-
-        ctx.fillStyle = `rgb(${barHeight + 100}, 50, 200)`;
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-
+        const barHeight = (dataArray[i] / 255) * canvas.height;
+        const redComponent = Math.min(255, (i * 2) + 50);
+        canvasCtx.fillStyle = `rgb(${redComponent}, 87, 34)`;
+        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         x += barWidth + 1;
       }
+
+      setCurrentTime(audioElement.currentTime);
     };
 
     draw();
 
     return () => {
-      cancelAnimationFrame(animationRef.current);
+      source.disconnect();
+      analyser.disconnect();
     };
-  }, [audio, audioContext, analyser, sourceNode]);
+  }, [audioElement, audioContext]);
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <VisualizerContainer>
-      <Canvas ref={canvasRef} />
+      <VisualizerCanvas ref={canvasRef} />
+      <TimeIndicator>{formatTime(currentTime)}</TimeIndicator>
     </VisualizerContainer>
   );
 };
