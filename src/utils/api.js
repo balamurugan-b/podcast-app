@@ -18,14 +18,14 @@ const apiCall = async (endpoint, method = 'GET', data = null) => {
     'Content-Type': 'application/json',
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
   const config = {
     method,
     headers,
   };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   if (data) {
     config.body = JSON.stringify(data);
