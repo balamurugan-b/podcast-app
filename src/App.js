@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { BrowserRouter as Router, Route, Navigate, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Navigate, Routes, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Verify from './components/Verify';
 import Screen2 from './components/Screen2';
@@ -9,39 +9,37 @@ import { fetchNews } from './utils/api';
 import { AuthProvider, useAuth } from './utils/AuthProvider';
 
 const MainApp = () => {
-  console.log('MainApp rendered');
-  const { user, loading } = useAuth();
-  const [userLocation, setUserLocation] = useState(() => localStorage.getItem('userLocation') || '');
+  const { user, loading, logout } = useAuth();
+  const [userLocation, setUserLocation] = useState('');
   const [newsItems, setNewsItems] = useState([]);
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   const [showVerification, setShowVerification] = useState(false);
   const [email, setEmail] = useState('');
   const [isSignup, setIsSignup] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
+  // Fetch user location
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchLocation = async () => {
       if (!userLocation) {
         try {
           const location = await getLocationAsync();
           setUserLocation(location);
-          localStorage.setItem('userLocation', location);
         } catch (error) {
           console.error('Failed to get location:', error);
         }
       }
     };
 
-    fetchData();
-  }, []);
+    fetchLocation();
+  }, [userLocation]);
 
+  // Fetch news data when user is authenticated
   useEffect(() => {
     const fetchNewsData = async () => {
       if (user) {
         try {
-          console.log('User present :: Fetching news data');
-          const news = await fetchNews();
+          const news = await fetchNews(user);
           setNewsItems(news);
         } catch (error) {
           console.error('Failed to fetch news:', error);
@@ -53,43 +51,28 @@ const MainApp = () => {
   }, [user]);
 
   const handleLoginSuccess = useCallback((userEmail, token, isNewUser) => {
-    if (!userEmail) {
-      console.error('User email is missing');
-      return;
-    }
     setEmail(userEmail);
 
     if (isNewUser) {
-      console.log('New user :: Showing verification');
       setIsSignup(true);
       setShowVerification(true);
+      navigate('/verify');
     } else {
-      console.log('Existing user :: Navigating to news');
-      if (!token) {
-        console.error('Token is missing for existing user login');
-        return;
-      }
       navigate('/news');
     }
   }, [navigate]);
 
   const handleVerificationSuccess = useCallback(() => {
-    console.log('Verification success handler called');
     setShowVerification(false);
     navigate('/news');
   }, [navigate]);
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('userLocation');
-    setUserLocation('');
-    setNewsItems([]);
-    setCurrentNewsIndex(0);
-    setShowVerification(false);
-    setEmail('');
-    setIsSignup(false);
+    logout();
     navigate('/');
-  }, [navigate]);
+  }, [logout, navigate]);
 
+  // Memoized routes to prevent unnecessary re-renders
   const memoizedRoutes = useMemo(() => (
     <Routes>
       <Route path="/" element={

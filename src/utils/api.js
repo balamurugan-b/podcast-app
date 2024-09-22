@@ -49,31 +49,18 @@ export const signIn = async (email, firstName, country, language) => {
     language,
   });
 
-  if (!response.ok) {
-    throw new Error('Sign in failed');
-  }
-
   const data = await response.json();
 
+  if (!response.ok) {
+    throw new Error(data.message || 'Sign in failed');
+  }
+
   if (data.isNewUser) {
-    // Signup case
-    localStorage.setItem('first_time_ever', 'true');
     return {
       isNewUser: true,
       message: data.message
     };
   } else {
-    // Signin case
-    setToken(data.token);
-    localStorage.setItem('first_time_ever', 'false');
-    const lastLoginDate = localStorage.getItem('last_login_date');
-    const today = new Date().toISOString().split('T')[0];
-    if (lastLoginDate !== today) {
-      localStorage.setItem('first_time_today', 'true');
-      localStorage.setItem('last_login_date', today);
-    } else {
-      localStorage.setItem('first_time_today', 'false');
-    }
     return {
       isNewUser: false,
       token: data.token
@@ -96,10 +83,10 @@ export const verifyEmail = async (email, verificationCode) => {
   return data;
 };
 
-export const fetchNews = async () => {
+export const fetchNews = async (user) => {
   try {
-    const firstTimeEver = localStorage.getItem('first_time_ever') === 'true';
-    const firstTimeToday = localStorage.getItem('first_time_today') === 'true';
+    const firstTimeEver = user.isFirstTimeEver;
+    const firstTimeToday = user.isFirstTimeToday;
     const currentTime = new Date().toISOString();
 
     const queryParams = new URLSearchParams({

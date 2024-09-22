@@ -7,7 +7,7 @@ import GlobalStyle from '../styles/GlobalStyle';
 import theme from '../styles/theme';
 import bgVideo from '../assets/bg1.mp4';
 import { AppContainer, Header, Title, Button, ErrorMessage, FormContainer } from '../styles/SharedComponents';
-import { toCamelCase } from '../utils/stringUtils'; // Add this import
+import { useAuth } from '../utils/AuthProvider'; // Add this import
 
 const BackgroundVideo = styled.video`
   position: absolute;
@@ -67,6 +67,7 @@ const Screen2 = ({ newsItems }) => {
     const [backgroundColor, setBackgroundColor] = useState('');
     const audioRef = useRef(null);
     const navigate = useNavigate();
+    const { user } = useAuth(); // Use AuthProvider to get user information
 
     const swipeHandlers = useSwipeable({
         onSwipedLeft: () => navigate('/details'),
@@ -124,8 +125,8 @@ const Screen2 = ({ newsItems }) => {
     }, [currentIndex, newsItems, generatePastelColor]);
 
     useEffect(() => {
-        const token = localStorage.getItem('userToken');
-        if (!token) {
+        // Use user from AuthProvider instead of checking localStorage directly
+        if (!user) {
             navigate('/');
             return;
         }
@@ -147,7 +148,7 @@ const Screen2 = ({ newsItems }) => {
                 audioRef.current.load();
             }
         };
-    }, [newsItems, navigate, playNextAudio]);
+    }, [newsItems, navigate, playNextAudio, user]);
 
     const handlePlayPause = useCallback(() => {
         if (audio) {
@@ -187,17 +188,12 @@ const Screen2 = ({ newsItems }) => {
         return null;
     }, [currentIndex, newsItems]);
 
-    const userName = useMemo(() => {
-        const storedName = localStorage.getItem('userName');
-        return storedName ? toCamelCase(storedName) : '';
-    }, []);
-
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle />
             <AppContainer {...swipeHandlers} style={{ backgroundColor }}>
                 <Header>
-                    <Title>Hello {userName}</Title>
+                    <Title>Hello {user.firstName}</Title>
                 </Header>
                 {errorMessage ? (
                     <ErrorMessage>{errorMessage}</ErrorMessage>

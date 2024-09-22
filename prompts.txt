@@ -19,3 +19,6 @@ Following are the functional requirements of the app:
  On swiping up, next news item should be shown. When user is in screen 3, they should be able to swipe right to get back to screen 2 where the current news continue to play automatically from where it was left.
 
  Can you implement this fully with right structure and relevant files for seperation of concerns following react's conventions.
+
+
+

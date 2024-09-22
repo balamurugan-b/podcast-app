@@ -6,7 +6,7 @@ import { AppContainer, Header, Title, Subtitle, Button, Input, ErrorMessage, For
 import { useAuth } from '../utils/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 
-const Login = ({ onLoginSuccess }) => {
+const Login = ({ onLoginSuccess, onLogout }) => {
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
     const [country, setCountry] = useState('');
@@ -16,28 +16,12 @@ const Login = ({ onLoginSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
+    // Set default country and language based on browser settings
     useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    // Use the browser's language settings to infer language and country
-                    const browserLang = navigator.language || navigator.userLanguage;
-                    const [language, country] = browserLang.split('-');
-                    setLanguage(language.toUpperCase() || 'EN');
-                    setCountry(country.toUpperCase() || 'UK');
-                },
-                (error) => {
-                    console.error('Geolocation error:', error);
-                    // Use defaults if geolocation fails
-                    setCountry('UK');
-                    setLanguage('EN');
-                }
-            );
-        } else {
-            // Use defaults if geolocation is not supported
-            setCountry('UK');
-            setLanguage('EN');
-        }
+        const browserLang = navigator.language || navigator.userLanguage;
+        const [lang, country] = browserLang.split('-');
+        setLanguage(lang.toUpperCase() || 'EN');
+        setCountry(country.toUpperCase() || 'UK');
     }, []);
 
     const handleSubmit = async (e) => {
@@ -46,19 +30,16 @@ const Login = ({ onLoginSuccess }) => {
         setIsLoading(true);
         try {
             const result = await login(email, firstName, country, language);
-            console.log('Login result:', result);
             onLoginSuccess(email, result.token, result.isNewUser);
         } catch (error) {
-            console.error('Login error:', error);
-            setError('Login failed. Please try again.');
+            setError(error.message || 'Login failed. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleLogout = () => {
-        logout();
-        navigate('/');
+        onLogout();
     };
 
     if (user) {
@@ -67,7 +48,7 @@ const Login = ({ onLoginSuccess }) => {
                 <GlobalStyle />
                 <AppContainer>
                     <Header>
-                        <Title>Welcome, {user.firstName}</Title>
+                        <Title>Hello {user.firstName}</Title>
                         <Subtitle>You are logged in</Subtitle>
                     </Header>
                     <Button onClick={handleLogout}>Logout</Button>
