@@ -7,6 +7,7 @@ import GlobalStyle from '../styles/GlobalStyle';
 import theme from '../styles/theme';
 import bgVideo from '../assets/bg1.mp4';
 import { AppContainer, Header, Title, Button, ErrorMessage, FormContainer } from '../styles/SharedComponents';
+import { toCamelCase } from '../utils/stringUtils'; // Add this import
 
 const BackgroundVideo = styled.video`
   position: absolute;
@@ -186,12 +187,17 @@ const Screen2 = ({ newsItems }) => {
         return null;
     }, [currentIndex, newsItems]);
 
+    const userName = useMemo(() => {
+        const storedName = localStorage.getItem('userName');
+        return storedName ? toCamelCase(storedName) : '';
+    }, []);
+
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle />
             <AppContainer {...swipeHandlers} style={{ backgroundColor }}>
                 <Header>
-                    <Title>Hello {localStorage.getItem('userName')}</Title>
+                    <Title>Hello {userName}</Title>
                 </Header>
                 {errorMessage ? (
                     <ErrorMessage>{errorMessage}</ErrorMessage>
