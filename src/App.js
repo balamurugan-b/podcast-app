@@ -38,6 +38,7 @@ const MainApp = () => {
   useEffect(() => {
     const fetchNewsData = async () => {
       if (user) {
+        console.log('Fetching news for user:', user);
         try {
           const news = await fetchNews(user);
           setNewsItems(news);
@@ -68,8 +69,8 @@ const MainApp = () => {
   }, [navigate]);
 
   const handleLogout = useCallback(() => {
+    console.log('Logging out user in MainApp');
     logout();
-    navigate('/');
   }, [logout, navigate]);
 
   // Memoized routes to prevent unnecessary re-renders
@@ -85,7 +86,7 @@ const MainApp = () => {
         )
       } />
       <Route path="/logout" element={
-        <Login onLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />
+        <LogoutHandler onLogout={handleLogout} />
       } />
       <Route path="/news" element={
         user ? (
@@ -114,6 +115,19 @@ const MainApp = () => {
   }
 
   return memoizedRoutes;
+};
+
+// Updated LogoutHandler component
+const LogoutHandler = ({ onLogout }) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('Logging out user in LogoutHandler');
+    onLogout();
+    navigate('/');
+  }, [onLogout, navigate]);
+
+  return null;
 };
 
 const App = () => (

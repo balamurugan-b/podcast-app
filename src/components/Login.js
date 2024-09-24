@@ -24,6 +24,13 @@ const Login = ({ onLoginSuccess, onLogout }) => {
         setCountry(country.toUpperCase() || 'UK');
     }, []);
 
+    // Set firstName if available in user object
+    useEffect(() => {
+        if (user && user.firstName) {
+            setFirstName(user.firstName);
+        }
+    }, [user]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -71,11 +78,13 @@ const Login = ({ onLoginSuccess, onLogout }) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
-                    <Input
-                        placeholder="First Name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                    />
+                    {!user?.firstName && (
+                        <Input
+                            placeholder="First Name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                        />
+                    )}
                     {error && <ErrorMessage>{error}</ErrorMessage>}
                     <Button onClick={handleSubmit} disabled={isLoading}>
                         {isLoading ? 'Signing In...' : 'Sign In'}

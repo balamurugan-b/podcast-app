@@ -107,3 +107,30 @@ export const fetchNews = async (user) => {
     return [];
   }
 };
+
+export const verifyToken = async () => {
+  try {
+    const response = await apiCall('/user/verify_token', 'POST');
+    if (!response.ok) {
+      throw new Error('Token verification failed');
+    }
+    return await response.json();
+  } catch (error) {
+    clearToken();
+    throw error;
+  }
+};
+
+export const refreshToken = async () => {
+  try {
+    const response = await apiCall('/user/refresh_token', 'POST');
+    if (!response.ok) {
+      throw new Error('Token refresh failed');
+    }
+    const data = await response.json();
+    return data.token;
+  } catch (error) {
+    clearToken();
+    throw error;
+  }
+};
