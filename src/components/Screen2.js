@@ -7,7 +7,7 @@ import GlobalStyle from '../styles/GlobalStyle';
 import theme from '../styles/theme';
 import bgVideo from '../assets/bg1.mp4';
 import { AppContainer, Header, Title, Button, ErrorMessage, FormContainer } from '../styles/SharedComponents';
-import { useAuth } from '../utils/AuthProvider'; // Add this import
+import { useAuth } from '../utils/AuthProvider';
 
 const BackgroundVideo = styled.video`
   position: absolute;
@@ -24,22 +24,9 @@ const ArticleImage = styled.img`
   max-height: 200px;
   object-fit: cover;
   margin-bottom: 10px;
-  transition: transform 3s ease-in-out; /* Add transition for zoom effect */
+  transition: transform 3s ease-in-out;
   &:hover {
-    transform: scale(1.1); /* Slow zoom-in effect */
-  }
-
-`;
-
-const MarqueeText = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  box-sizing: border-box;
-  animation: marquee 20s linear infinite;
-
-  @keyframes marquee {
-    0% { transform: translate(100%, 0); }
-    100% { transform: translate(-100%, 0); }
+    transform: scale(1.1);
   }
 `;
 
@@ -56,18 +43,15 @@ const Controls = styled.div`
   margin-bottom: 20px;
 `;
 
-const Screen2 = ({ newsItems }) => {
-    console.log('Screen2 rendering');
-
+const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurrentNewsIndex }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [audio, setAudio] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentIndex, setCurrentIndex] = useState(-1);
     const [errorMessage, setErrorMessage] = useState('');
     const [backgroundColor, setBackgroundColor] = useState('');
     const audioRef = useRef(null);
     const navigate = useNavigate();
-    const { user } = useAuth(); // Use AuthProvider to get user information
+    const { user } = useAuth();
 
     const swipeHandlers = useSwipeable({
         onSwipedLeft: () => navigate('/details'),
@@ -84,10 +68,10 @@ const Screen2 = ({ newsItems }) => {
         newAudio.crossOrigin = "anonymous";
 
         let audioSrc = '';
-        if (currentIndex === -1 && newsItems?.intro_audio) {
-            audioSrc = newsItems.intro_audio;
-        } else if (currentIndex < newsItems?.articles?.length) {
-            audioSrc = newsItems.articles[currentIndex].audio_summary;
+        if (currentNewsIndex === -1 && introAudio) {
+            audioSrc = introAudio;
+        } else if (currentNewsIndex < newsItems.length) {
+            audioSrc = newsItems[currentNewsIndex].audio_summary;
         } else {
             setIsPlaying(false);
             setIsLoading(false);
@@ -104,7 +88,11 @@ const Screen2 = ({ newsItems }) => {
         };
 
         const handleEnded = () => {
-            setCurrentIndex(prevIndex => prevIndex + 1);
+            setCurrentNewsIndex(prevIndex => {
+                const newIndex = prevIndex + 1;
+                localStorage.setItem('currentNewsIndex', newIndex);
+                return newIndex;
+            });
         };
 
         newAudio.addEventListener('canplaythrough', handleCanPlayThrough);
@@ -122,16 +110,15 @@ const Screen2 = ({ newsItems }) => {
                 audioRef.current.load();
             }
         };
-    }, [currentIndex, newsItems, generatePastelColor]);
+    }, [currentNewsIndex, newsItems, introAudio, generatePastelColor, setCurrentNewsIndex]);
 
     useEffect(() => {
-        // Use user from AuthProvider instead of checking localStorage directly
         if (!user) {
             navigate('/');
             return;
         }
 
-        if (!newsItems || !newsItems.intro_audio || newsItems.articles.length === 0) {
+        if (!newsItems || newsItems.length === 0) {
             console.log('No news items available. Please try again later.');
             setErrorMessage('No news items available. Please try again later.');
             return;
@@ -148,7 +135,7 @@ const Screen2 = ({ newsItems }) => {
                 audioRef.current.load();
             }
         };
-    }, [newsItems, navigate, playNextAudio, user]);
+    }, [newsItems, navigate, playNextAudio, user, introAudio]);
 
     const handlePlayPause = useCallback(() => {
         if (audio) {
@@ -162,22 +149,30 @@ const Screen2 = ({ newsItems }) => {
     }, [audio, isPlaying]);
 
     const handlePrevious = useCallback(() => {
-        setCurrentIndex(prevIndex => Math.max(-1, prevIndex - 1));
-    }, []);
+        setCurrentNewsIndex(prevIndex => {
+            const newIndex = Math.max(-1, prevIndex - 1);
+            localStorage.setItem('currentNewsIndex', newIndex);
+            return newIndex;
+        });
+    }, [setCurrentNewsIndex]);
 
     const handleNext = useCallback(() => {
-        setCurrentIndex(prevIndex => Math.min((newsItems?.articles?.length || 0) - 1, prevIndex + 1));
-    }, [newsItems]);
+        setCurrentNewsIndex(prevIndex => {
+            const newIndex = Math.min(newsItems.length - 1, prevIndex + 1);
+            localStorage.setItem('currentNewsIndex', newIndex);
+            return newIndex;
+        });
+    }, [newsItems, setCurrentNewsIndex]);
 
     const renderContent = useMemo(() => {
-        if (currentIndex === -1) {
+        if (currentNewsIndex === -1) {
             return (
                 <BackgroundVideo autoPlay loop muted>
                     <source src={bgVideo} type="video/mp4" />
                 </BackgroundVideo>
             );
-        } else if (currentIndex < (newsItems?.articles?.length || 0)) {
-            const article = newsItems.articles[currentIndex];
+        } else if (currentNewsIndex < newsItems.length) {
+            const article = newsItems[currentNewsIndex];
             return (
                 <>
                     <NewsHeadline>{article.title}</NewsHeadline>
@@ -186,7 +181,7 @@ const Screen2 = ({ newsItems }) => {
             );
         }
         return null;
-    }, [currentIndex, newsItems]);
+    }, [currentNewsIndex, newsItems]);
 
     return (
         <ThemeProvider theme={theme}>

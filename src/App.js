@@ -11,8 +11,19 @@ import { AuthProvider, useAuth } from './utils/AuthProvider';
 const MainApp = () => {
   const { user, loading, logout } = useAuth();
   const [userLocation, setUserLocation] = useState('');
-  const [newsItems, setNewsItems] = useState([]);
-  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
+  const [newsData, setNewsData] = useState(() => {
+    try {
+      const savedNewsData = localStorage.getItem('newsData');
+      return savedNewsData ? JSON.parse(savedNewsData) : { articles: [], intro_audio: null };
+    } catch (error) {
+      console.error('Error parsing saved news data:', error);
+      return { articles: [], intro_audio: null };
+    }
+  });
+  const [currentNewsIndex, setCurrentNewsIndex] = useState(() => {
+    const savedIndex = localStorage.getItem('currentNewsIndex');
+    return savedIndex ? parseInt(savedIndex, 10) : 0;
+  });
   const [showVerification, setShowVerification] = useState(false);
   const [email, setEmail] = useState('');
   const [isSignup, setIsSignup] = useState(false);
@@ -34,22 +45,54 @@ const MainApp = () => {
     fetchLocation();
   }, [userLocation]);
 
-  // Fetch news data when user is authenticated
-  useEffect(() => {
-    const fetchNewsData = async () => {
-      if (user) {
-        console.log('Fetching news for user:', user);
-        try {
-          const news = await fetchNews(user);
-          setNewsItems(news);
-        } catch (error) {
-          console.error('Failed to fetch news:', error);
-        }
-      }
-    };
+  // Combined function to fetch and update news
+  const fetchAndUpdateNews = useCallback(async (isInitialFetch = false) => {
+    console.log('Fetching news for user:', user);
+    console.log('News items:', newsData.articles.length);
+    console.log('Current news index:', currentNewsIndex);
+    if (user) {
+      console.log('Fetching news for user:', user);
+      try {
+        const newNewsData = await fetchNews(user);
+        setNewsData(prevData => {
+          let updatedData;
+          if (isInitialFetch) {
+            updatedData = newNewsData;
+          } else {
+            // Merge new items with existing ones, avoiding duplicates
+            const existingIds = new Set(prevData.articles.map(item => item.id));
+            const uniqueNewItems = newNewsData.articles.filter(item => !existingIds.has(item.id));
+            updatedData = {
+              articles: [...prevData.articles, ...uniqueNewItems],
+              intro_audio: newNewsData.intro_audio || prevData.intro_audio
+            };
+          }
+          localStorage.setItem('newsData', JSON.stringify(updatedData));
+          return updatedData;
+        });
 
-    fetchNewsData();
+        if (isInitialFetch) {
+          setCurrentNewsIndex(0);
+          localStorage.setItem('currentNewsIndex', '0');
+        }
+      } catch (error) {
+        console.error('Failed to fetch news:', error);
+      }
+    }
   }, [user]);
+
+  // Effect to handle initial load and subsequent refreshes
+  useEffect(() => {
+    if (loading) return; // Don't do anything while auth is loading
+
+    console.log('News items on app load:', newsData.articles.length);
+    console.log('Current news index on app load:', currentNewsIndex);
+    const shouldFetchNews = newsData.articles.length === 0 || currentNewsIndex >= newsData.articles.length - 2;
+    
+    if (user && shouldFetchNews) {
+      fetchAndUpdateNews(newsData.articles.length === 0);
+    }
+  }, [user, loading, fetchAndUpdateNews, currentNewsIndex, newsData.articles.length]);
 
   const handleLoginSuccess = useCallback((userEmail, token, isNewUser) => {
     setEmail(userEmail);
@@ -90,7 +133,13 @@ const MainApp = () => {
       } />
       <Route path="/news" element={
         user ? (
-          <Screen2 newsItems={newsItems} />
+          <Screen2 
+            newsItems={newsData.articles} 
+            introAudio={newsData.intro_audio}
+            setNewsData={setNewsData}
+            currentNewsIndex={currentNewsIndex} 
+            setCurrentNewsIndex={setCurrentNewsIndex} 
+          />
         ) : (
           <Navigate to="/" replace />
         )
@@ -98,7 +147,8 @@ const MainApp = () => {
       <Route path="/details" element={
         user ? (
           <Screen3 
-            newsItems={newsItems} 
+            newsItems={newsData.articles} 
+            introAudio={newsData.intro_audio}
             currentIndex={currentNewsIndex}
             setCurrentIndex={setCurrentNewsIndex}
           />
@@ -108,7 +158,7 @@ const MainApp = () => {
       } />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  ), [user, showVerification, isSignup, email, newsItems, currentNewsIndex, handleLoginSuccess, handleLogout, handleVerificationSuccess]);
+  ), [user, showVerification, isSignup, email, newsData, currentNewsIndex, handleLoginSuccess, handleLogout, handleVerificationSuccess]);
 
   if (loading) {
     return <div>Loading...</div>;
