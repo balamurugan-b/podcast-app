@@ -7,6 +7,7 @@ import Screen3 from './components/Screen3';
 import { getLocationAsync } from './utils/location';
 import { fetchNews } from './utils/api';
 import { AuthProvider, useAuth } from './utils/AuthProvider';
+import { isNewDay } from './utils/dateUtils'; // Add this import
 
 const MainApp = () => {
   const { user, loading, logout } = useAuth();
@@ -28,6 +29,7 @@ const MainApp = () => {
   const [email, setEmail] = useState('');
   const [isSignup, setIsSignup] = useState(false);
   const navigate = useNavigate();
+  const [shouldPlayIntro, setShouldPlayIntro] = useState(false);
 
   // Fetch user location
   useEffect(() => {
@@ -58,13 +60,14 @@ const MainApp = () => {
           let updatedData;
           if (isInitialFetch) {
             updatedData = newNewsData;
+            setShouldPlayIntro(true);
           } else {
             // Merge new items with existing ones, avoiding duplicates
             const existingIds = new Set(prevData.articles.map(item => item.id));
             const uniqueNewItems = newNewsData.articles.filter(item => !existingIds.has(item.id));
             updatedData = {
               articles: [...prevData.articles, ...uniqueNewItems],
-              intro_audio: newNewsData.intro_audio || prevData.intro_audio
+              intro_audio: isInitialFetch ? newNewsData.intro_audio : prevData.intro_audio
             };
           }
           localStorage.setItem('newsData', JSON.stringify(updatedData));
@@ -85,12 +88,31 @@ const MainApp = () => {
   useEffect(() => {
     if (loading) return; // Don't do anything while auth is loading
 
-    console.log('News items on app load:', newsData.articles.length);
-    console.log('Current news index on app load:', currentNewsIndex);
-    const shouldFetchNews = newsData.articles.length === 0 || currentNewsIndex >= newsData.articles.length - 2;
-    
-    if (user && shouldFetchNews) {
-      fetchAndUpdateNews(newsData.articles.length === 0);
+    if (user) {
+      console.log('News items on app load:', newsData.articles.length);
+      console.log('Current news index on app load:', currentNewsIndex);
+
+      const lastLoginDate = localStorage.getItem('lastLoginDate');
+      const currentDate = new Date().toISOString().split('T')[0];
+
+      const isNewLogin = isNewDay(lastLoginDate, currentDate);
+      if (isNewLogin) {
+        // Reset data for a new day
+        setNewsData({ articles: [], intro_audio: null });
+        setCurrentNewsIndex(0);
+        localStorage.setItem('newsData', JSON.stringify({ articles: [], intro_audio: null }));
+        localStorage.setItem('currentNewsIndex', '0');
+        setShouldPlayIntro(true);
+      }
+
+      localStorage.setItem('lastLoginDate', currentDate);
+
+      const shouldFetchNews = newsData.articles.length === 0 || currentNewsIndex >= newsData.articles.length - 2 || isNewLogin;
+      const isInitialFetch = newsData.articles.length === 0 || isNewLogin;
+
+      if (shouldFetchNews) {
+        fetchAndUpdateNews(isInitialFetch); // true indicates it's an initial fetch
+      }
     }
   }, [user, loading, fetchAndUpdateNews, currentNewsIndex, newsData.articles.length]);
 
@@ -133,12 +155,14 @@ const MainApp = () => {
       } />
       <Route path="/news" element={
         user ? (
-          <Screen2 
-            newsItems={newsData.articles} 
+          <Screen2
+            newsItems={newsData.articles}
             introAudio={newsData.intro_audio}
             setNewsData={setNewsData}
-            currentNewsIndex={currentNewsIndex} 
-            setCurrentNewsIndex={setCurrentNewsIndex} 
+            currentNewsIndex={currentNewsIndex}
+            setCurrentNewsIndex={setCurrentNewsIndex}
+            shouldPlayIntro={shouldPlayIntro}
+            setShouldPlayIntro={setShouldPlayIntro}
           />
         ) : (
           <Navigate to="/" replace />
@@ -146,8 +170,8 @@ const MainApp = () => {
       } />
       <Route path="/details" element={
         user ? (
-          <Screen3 
-            newsItems={newsData.articles} 
+          <Screen3
+            newsItems={newsData.articles}
             introAudio={newsData.intro_audio}
             currentIndex={currentNewsIndex}
             setCurrentIndex={setCurrentNewsIndex}
@@ -158,7 +182,7 @@ const MainApp = () => {
       } />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  ), [user, showVerification, isSignup, email, newsData, currentNewsIndex, handleLoginSuccess, handleLogout, handleVerificationSuccess]);
+  ), [user, showVerification, isSignup, email, newsData, currentNewsIndex, handleLoginSuccess, handleLogout, handleVerificationSuccess, shouldPlayIntro, setShouldPlayIntro]);
 
   if (loading) {
     return <div>Loading...</div>;

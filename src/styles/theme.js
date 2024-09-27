@@ -8,7 +8,7 @@ const theme = {
     },
     fonts: {
       body: 'Inter, sans-serif',
-      heading: 'Comfortaa, sans-serif',
+      heading: 'Roboto, sans-serif',
     },
     sizes: {
       maxWidth: '400px',

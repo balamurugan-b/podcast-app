@@ -43,7 +43,7 @@ const Controls = styled.div`
   margin-bottom: 20px;
 `;
 
-const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurrentNewsIndex }) => {
+const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurrentNewsIndex, shouldPlayIntro, setShouldPlayIntro }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [audio, setAudio] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -54,7 +54,14 @@ const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurr
     const { user } = useAuth();
 
     const swipeHandlers = useSwipeable({
-        onSwipedLeft: () => navigate('/details'),
+        onSwipedLeft: () => {
+            handleNext();
+        },
+        onSwipedRight: () => {
+            handlePrevious();
+        },
+        preventDefaultTouchmoveEvent: true,
+        trackMouse: true
     });
 
     const generatePastelColor = useCallback(() => {
@@ -68,7 +75,7 @@ const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurr
         newAudio.crossOrigin = "anonymous";
 
         let audioSrc = '';
-        if (currentNewsIndex === -1 && introAudio) {
+        if (shouldPlayIntro && introAudio) {
             audioSrc = introAudio;
         } else if (currentNewsIndex < newsItems.length) {
             audioSrc = newsItems[currentNewsIndex].audio_summary;
@@ -88,11 +95,16 @@ const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurr
         };
 
         const handleEnded = () => {
-            setCurrentNewsIndex(prevIndex => {
-                const newIndex = prevIndex + 1;
-                localStorage.setItem('currentNewsIndex', newIndex);
-                return newIndex;
-            });
+            if (shouldPlayIntro) {
+                setShouldPlayIntro(false);
+                setCurrentNewsIndex(0);
+            } else {
+                setCurrentNewsIndex(prevIndex => {
+                    const newIndex = prevIndex + 1;
+                    localStorage.setItem('currentNewsIndex', newIndex);
+                    return newIndex;
+                });
+            }
         };
 
         newAudio.addEventListener('canplaythrough', handleCanPlayThrough);
@@ -110,7 +122,7 @@ const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurr
                 audioRef.current.load();
             }
         };
-    }, [currentNewsIndex, newsItems, introAudio, generatePastelColor, setCurrentNewsIndex]);
+    }, [currentNewsIndex, newsItems, introAudio, generatePastelColor, setCurrentNewsIndex, shouldPlayIntro, setShouldPlayIntro]);
 
     useEffect(() => {
         if (!user) {
