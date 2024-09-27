@@ -27,45 +27,62 @@ export const AppContainer = styled.div`
   }
 `;
 
+export const Card = styled.div`
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  margin: 10px;
+  background-color: ${({ theme }) => theme.colors.cardBackground};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  box-shadow: 0 4px 6px rgba(60, 60, 60, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+`;
+
 export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: auto 0; // Center vertically within the parent
+  justify-content: center; // Add this line
+  margin: auto; // Center vertically within the parent
   background-color: ${({ theme }) => theme.formBackground};
   width: 90%;
+  flex: 1;
+  height: 100%;
+  position: relative;
 `;
 
 export const Header = styled.div`
   text-align: center;
-  margin-top: 20px;
+  margin-top: 40px;
 `;
 
 export const Title = styled.h2`
   font-size: 24px;
   margin-bottom: 5px;
+  color: ${({ theme }) => theme.colors.brand};
   font-family: ${({ theme }) => theme.fonts.heading};
 `;
 
 export const Subtitle = styled.h3`
   font-size: 20px;
-  color: ${({ theme }) => theme.colors.secondary};
   margin-top: 0;
   font-family: ${({ theme }) => theme.fonts.body};
 `;
 
 export const Button = styled.button`
-  background: none;
+  background: ${({ theme }) => theme.colors.accent};
   border: none;
   font-size: 18px;
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.primary};
+  color: #FFF;
   padding: 10px 20px;
   border-radius: 5px;
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: rgba(138, 43, 226, 0.1);
+    background-color: ${({ theme }) => `color-mix(in srgb, ${theme.colors.accent} 85%, black)`};
   }
 `;
 

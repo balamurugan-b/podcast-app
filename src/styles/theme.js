@@ -1,14 +1,16 @@
 const theme = {
     colors: {
-      primary: '#8a2be2',
-      secondary: '#4b0082',
-      background: '#fdfdfd',
-      text: '#000000',
-      accent: '#8b0000',
+      brand: '#4B4741',
+      primary: '#93beff',
+      secondary: '#ecdfcc',
+      background: '#fcfaf7',
+      text: '#4B4741',
+      accent: '#3184FF',
     },
     fonts: {
       body: 'Inter, sans-serif',
       heading: 'Roboto, sans-serif',
+      brand: 'Comfortaa, sans-serif',
     },
     sizes: {
       maxWidth: '400px',

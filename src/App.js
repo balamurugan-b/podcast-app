@@ -8,6 +8,7 @@ import { getLocationAsync } from './utils/location';
 import { fetchNews } from './utils/api';
 import { AuthProvider, useAuth } from './utils/AuthProvider';
 import { isNewDay } from './utils/dateUtils'; // Add this import
+import Header from './components/Header';
 
 const MainApp = () => {
   const { user, loading, logout } = useAuth();
@@ -207,6 +208,7 @@ const LogoutHandler = ({ onLogout }) => {
 const App = () => (
   <AuthProvider>
     <Router>
+      <Header />
       <MainApp />
     </Router>
   </AuthProvider>

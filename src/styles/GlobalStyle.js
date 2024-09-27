@@ -13,10 +13,16 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #FFF;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2 {
     font-family: 'Roboto', sans-serif;
+  }
+
+  h3, h4, h5, h6 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
   }
 
   * {

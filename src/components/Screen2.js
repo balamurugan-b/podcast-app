@@ -5,42 +5,70 @@ import styled from 'styled-components';
 import { ThemeProvider } from 'styled-components';
 import GlobalStyle from '../styles/GlobalStyle';
 import theme from '../styles/theme';
-import bgVideo from '../assets/bg1.mp4';
-import { AppContainer, Header, Title, Button, ErrorMessage, FormContainer } from '../styles/SharedComponents';
+import { AppContainer, Card, ErrorMessage, FormContainer } from '../styles/SharedComponents';
 import { useAuth } from '../utils/AuthProvider';
+import defaultBg from '../assets/bg.jpg'; // Add this import at the top of the file
 
-const BackgroundVideo = styled.video`
+const BackgroundImage = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  right: 0;
+  bottom: 0;
+  background-image: url(${props => props.src});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.7;
+  filter: brightness(0.7);
+`;
+
+const ContentWrapper = styled.div`
+  position: relative;
+  z-index: 1;
   height: 100%;
-  object-fit: cover;
-  z-index: -1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: transparent; // Remove opaque background
 `;
 
-const ArticleImage = styled.img`
-  width: 90%;
-  max-height: 200px;
-  object-fit: cover;
-  margin-bottom: 10px;
-  transition: transform 3s ease-in-out;
-  &:hover {
-    transform: scale(1.1);
-  }
-`;
-
-const NewsHeadline = styled.h3`
-  font-size: 18px;
-  text-align: center;
-  margin: 20px 0;
+export const NewsHeadline = styled.h4`
+  font-size: 24px;
+  text-align: left;
+  padding: 10px;
+  color: #FFF; // ${({ theme }) => theme.colors.text}
+  background-color: rgba(0, 0, 0, 0.25); // Lighter background
+  margin: auto; // Center vertically
 `;
 
 const Controls = styled.div`
   display: flex;
   justify-content: space-around;
-  width: 80%;
-  margin-bottom: 20px;
+  width: 100%;
+  padding: 20px 0;
+  margin-top: auto;
+  background-color: rgba(0, 0, 0, 0.1); // Lighter background
+
+`;
+
+const ControlButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 36px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.accent};
+  padding: 10px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:disabled {
+    color: ${({ theme }) => theme.colors.disabled};
+    cursor: not-allowed;
+  }
 `;
 
 const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurrentNewsIndex, shouldPlayIntro, setShouldPlayIntro }) => {
@@ -49,6 +77,7 @@ const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurr
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const [backgroundColor, setBackgroundColor] = useState('');
+    const [fallbackImage, setFallbackImage] = useState(false);
     const audioRef = useRef(null);
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -176,20 +205,15 @@ const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurr
         });
     }, [newsItems, setCurrentNewsIndex]);
 
+    const handleImageError = () => {
+        setFallbackImage(true);
+    };
+
     const renderContent = useMemo(() => {
-        if (currentNewsIndex === -1) {
-            return (
-                <BackgroundVideo autoPlay loop muted>
-                    <source src={bgVideo} type="video/mp4" />
-                </BackgroundVideo>
-            );
-        } else if (currentNewsIndex < newsItems.length) {
+        if (currentNewsIndex >= 0 && currentNewsIndex < newsItems.length) {
             const article = newsItems[currentNewsIndex];
             return (
-                <>
-                    <NewsHeadline>{article.title}</NewsHeadline>
-                    <ArticleImage src={article.image} alt={article.title} />
-                </>
+                <NewsHeadline>{article.title}</NewsHeadline>
             );
         }
         return null;
@@ -198,26 +222,34 @@ const Screen2 = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurr
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle />
-            <AppContainer {...swipeHandlers} style={{ backgroundColor }}>
-                <Header>
-                    <Title>Hello {user.firstName}</Title>
-                </Header>
+            <AppContainer {...swipeHandlers}>
+                <Card>
                 {errorMessage ? (
                     <ErrorMessage>{errorMessage}</ErrorMessage>
                 ) : (
                     <>
-                        <FormContainer>
+                        {(currentNewsIndex >= 0 && currentNewsIndex < newsItems.length) ? (
+                            <BackgroundImage 
+                                src={fallbackImage ? defaultBg : newsItems[currentNewsIndex].image || defaultBg} 
+                                onError={handleImageError}
+                                as="img"
+                            />
+                        ) : (
+                            <BackgroundImage src={defaultBg} />
+                        )}
+                        <ContentWrapper>
                             {renderContent}
                             <Controls>
-                                <Button onClick={handlePrevious}>⏮</Button>
-                                <Button onClick={handlePlayPause} disabled={isLoading}>
+                                <ControlButton onClick={handlePrevious} disabled={currentNewsIndex <= 0}>⏮</ControlButton>
+                                <ControlButton onClick={handlePlayPause} disabled={isLoading}>
                                     {isLoading ? '⏳' : isPlaying ? '⏸' : '▶'}
-                                </Button>
-                                <Button onClick={handleNext}>⏭</Button>
+                                </ControlButton>
+                                <ControlButton onClick={handleNext} disabled={currentNewsIndex >= newsItems.length - 1}>⏭</ControlButton>
                             </Controls>
-                        </FormContainer>
+                        </ContentWrapper>
                     </>
                 )}
+                </Card>
             </AppContainer>
         </ThemeProvider>
     );
