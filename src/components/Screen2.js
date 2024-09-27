@@ -7,7 +7,7 @@ import GlobalStyle from '../styles/GlobalStyle';
 import theme from '../styles/theme';
 import { AppContainer, Card, ErrorMessage, FormContainer } from '../styles/SharedComponents';
 import { useAuth } from '../utils/AuthProvider';
-import defaultBg from '../assets/bg.jpg'; // Add this import at the top of the file
+import defaultBg from '../assets/bg1.jpg'; // Add this import at the top of the file
 
 const BackgroundImage = styled.div`
   position: absolute;

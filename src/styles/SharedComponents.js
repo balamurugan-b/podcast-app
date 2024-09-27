@@ -28,8 +28,8 @@ export const AppContainer = styled.div`
 `;
 
 export const Card = styled.div`
-  width: calc(100% - 20px);
-  height: calc(100% - 20px);
+  width: 100%;
+  height: 100%;
   margin: 10px;
   background-color: ${({ theme }) => theme.colors.cardBackground};
   border-radius: ${({ theme }) => theme.borderRadius};
