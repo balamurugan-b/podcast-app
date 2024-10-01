@@ -9,6 +9,7 @@ import { fetchNews } from './utils/api';
 import { AuthProvider, useAuth } from './utils/AuthProvider';
 import { isNewDay } from './utils/dateUtils'; // Add this import
 import Header from './components/Header';
+import PlayerScreen from './components/PlayerScreen';
 
 const MainApp = () => {
   const { user, loading, logout } = useAuth();
@@ -156,7 +157,7 @@ const MainApp = () => {
       } />
       <Route path="/news" element={
         user ? (
-          <Screen2
+          <PlayerScreen
             newsItems={newsData.articles}
             introAudio={newsData.intro_audio}
             setNewsData={setNewsData}

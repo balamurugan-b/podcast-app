@@ -10,10 +10,6 @@ export const AppContainer = styled.div`
   max-width: ${({ theme }) => theme.sizes.maxWidth};
   max-height: ${({ theme }) => theme.sizes.maxHeight};
   background-color: ${({ theme }) => theme.colors.background};
-  transition: background-color 1s ease-in-out; /* Add transition for background color change */
-
-  padding: ${({ theme }) => theme.padding};
-  border-radius: ${({ theme }) => theme.borderRadius};
   margin: 0 auto;
   box-sizing: border-box;
   position: relative;
@@ -27,17 +23,38 @@ export const AppContainer = styled.div`
   }
 `;
 
+export const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start; // Change this line
+  align-items: center; // Add this line
+  width: 100%;
+  max-width: ${({ theme }) => theme.sizes.maxWidth};
+  background-color: rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  position: absolute;
+  overflow: hidden;
+  padding: 10px;
+  z-index: 10;
+  
+  left: 50%;
+  transform: translateX(-50%);
+
+  @media (max-width: 400px) {
+    width: 100%;
+    border-radius: 0;
+    border: none;
+  }
+`;
+
 export const Card = styled.div`
   width: 100%;
   height: 100%;
-  margin: 10px;
-  background-color: ${({ theme }) => theme.colors.cardBackground};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  box-shadow: 0 4px 6px rgba(60, 60, 60, 0.5);
+  background-color: ${({ theme }) => theme.colors.darkOverlay};
   overflow: hidden;
-  display: flex;
   flex-direction: column;
   position: relative;
+  padding: 10px;
 `;
 
 export const FormContainer = styled.div`

@@ -134,3 +134,21 @@ export const refreshToken = async () => {
     throw error;
   }
 };
+
+export const rateNews = async (newsId, rating) => {
+  try {
+    const response = await apiCall('/rateNews', 'POST', {
+      news_id: newsId,
+      rating: rating
+    });
+
+    if (!response.ok) {
+      throw new Error('Rating submission failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error submitting rating:', error);
+    throw error;
+  }
+};
