@@ -122,3 +122,9 @@ export const ErrorMessage = styled.div`
   padding: 10px;
 `;
 
+export const ScrollableContent = styled.div`
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+`;
+

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { ThemeProvider } from 'styled-components';
 import GlobalStyle from '../styles/GlobalStyle';
 import theme from '../styles/theme';
-import { AppContainer, Card, ErrorMessage, Title, Subtitle } from '../styles/SharedComponents';
+import { AppContainer, Card, ErrorMessage, Title, Subtitle, ScrollableContent } from '../styles/SharedComponents';
 import { useAuth } from '../utils/AuthProvider';
 import defaultBg from '../assets/bg1.jpg';
 import { rateNews } from '../utils/api';
@@ -119,6 +119,28 @@ export const NewsHeadline = styled.h4`
   color: #FFF; // ${({ theme }) => theme.colors.text}
   background-color: rgba(0, 0, 0, 0.25); // Lighter background
   margin: auto; // Center vertically
+`;
+
+const SummaryWrapper = styled.div`
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  margin-top: 20px;
+`;
+
+const SummaryTitle = styled.h4`
+  font-size: 18px;
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: 10px;
+`;
+
+const SummaryText = styled.p`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.secondary};
+  line-height: 1.5;
 `;
 
 const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurrentNewsIndex, shouldPlayIntro, setShouldPlayIntro }) => {
@@ -323,7 +345,7 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                     {errorMessage ? (
                         <ErrorMessage>{errorMessage}</ErrorMessage>
                     ) : (
-                        <>
+                        <ScrollableContent>
                             <BackgroundOverlay src={newsItems[currentNewsIndex]?.image || defaultBg} />
                             <ContentWrapper>
                                 <PlaylistInfo>
@@ -359,7 +381,13 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                                     </Controls>
                                 </ControlsWrapper>
                             </ContentWrapper>
-                        </>
+                            <SummaryWrapper>
+                                <SummaryTitle>Summary</SummaryTitle>
+                                <SummaryText>
+                                    {newsItems[currentNewsIndex]?.summary_50 || "No summary available."}
+                                </SummaryText>
+                            </SummaryWrapper>
+                        </ScrollableContent>
                     )}
                 </Card>
             </AppContainer>
