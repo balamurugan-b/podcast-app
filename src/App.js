@@ -209,7 +209,6 @@ const LogoutHandler = ({ onLogout }) => {
 const App = () => (
   <AuthProvider>
     <Router>
-      <Header />
       <MainApp />
     </Router>
   </AuthProvider>

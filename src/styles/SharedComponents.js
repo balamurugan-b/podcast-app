@@ -1,26 +1,21 @@
 import styled from 'styled-components';
 
 export const AppContainer = styled.div`
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  height: 100vh;
-  max-width: ${({ theme }) => theme.sizes.maxWidth};
-  max-height: ${({ theme }) => theme.sizes.maxHeight};
   background-color: ${({ theme }) => theme.colors.background};
   margin: 0 auto;
   box-sizing: border-box;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   overflow: hidden;
-
-  @media (max-width: 400px) {
-    width: 100%;
-    height: 100vh;
-    border-radius: 0;
-    border: none;
-  }
 `;
 
 export const HeaderContainer = styled.div`
@@ -28,8 +23,8 @@ export const HeaderContainer = styled.div`
   flex-direction: row;
   justify-content: flex-start; // Change this line
   align-items: center; // Add this line
-  width: 100%;
-  max-width: ${({ theme }) => theme.sizes.maxWidth};
+  width: 100vw;
+  max-width: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
   position: absolute;
@@ -52,6 +47,7 @@ export const Card = styled.div`
   height: 100%;
   background-color: ${({ theme }) => theme.colors.darkOverlay};
   overflow: hidden;
+  display: flex;
   flex-direction: column;
   position: relative;
   padding: 10px;
@@ -123,8 +119,7 @@ export const ErrorMessage = styled.div`
 `;
 
 export const ScrollableContent = styled.div`
-  height: 100%;
+  flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 `;
-

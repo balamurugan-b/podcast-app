@@ -9,6 +9,7 @@ import { AppContainer, Card, ErrorMessage, Title, Subtitle, ScrollableContent } 
 import { useAuth } from '../utils/AuthProvider';
 import defaultBg from '../assets/bg1.jpg';
 import { rateNews } from '../utils/api';
+import Header from './Header';
 
 const BackgroundOverlay = styled.div`
   position: absolute;
@@ -25,18 +26,28 @@ const BackgroundOverlay = styled.div`
 const ContentWrapper = styled.div`
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+`;
+
+const MainContent = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 100px 20px 20px 20px;
+  min-height: 90vh;
+  padding: 20px;
+  padding-top: 100px; // Adjust this value based on your header height
 `;
 
-const Header = styled.div`
+const TopSection = styled.div`
+  flex-grow: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: ${({ theme }) => theme.colors.text};
+  flex-direction: column;
+  justify-content: flex-start;
 `;
 
 const PlaylistInfo = styled.div`
@@ -48,13 +59,14 @@ const PlaylistInfo = styled.div`
 const NewsInfo = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
+  margin-bottom: 20px;
 `;
 
 const ControlsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+  margin-top: auto; // Push controls to the bottom of MainContent
 `;
 
 const RatingButtons = styled.div`
@@ -107,8 +119,18 @@ const ControlButton = styled.button`
   font-size: 24px;
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   &:disabled {
     opacity: 0.5;
+  }
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: ${({ theme }) => theme.colors.text};
   }
 `;
 
@@ -122,8 +144,6 @@ export const NewsHeadline = styled.h4`
 `;
 
 const SummaryWrapper = styled.div`
-  position: relative;
-  z-index: 1;
   width: 100%;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.7);
@@ -298,7 +318,7 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
     const getTimeOfDay = useCallback(() => {
         const hour = new Date().getHours();
         if (hour < 12) return 'Morning';
-        if (hour < 18) return 'Afternoon';
+        if (hour < 17) return 'Afternoon';
         return 'Evening';
     }, []);
 
@@ -340,54 +360,78 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle />
-            <AppContainer>
+            <Header />
+            <AppContainer {...swipeHandlers}>
                 <Card>
                     {errorMessage ? (
                         <ErrorMessage>{errorMessage}</ErrorMessage>
                     ) : (
-                        <ScrollableContent>
+                        <>
                             <BackgroundOverlay src={newsItems[currentNewsIndex]?.image || defaultBg} />
                             <ContentWrapper>
-                                <PlaylistInfo>
-                                    <Title>Hello {user.firstName}</Title>
-                                    <Subtitle>Your {getTimeOfDay()} newscast</Subtitle>
-                                </PlaylistInfo>
-                                <NewsInfo>
-                                    <h3>{newsItems[currentNewsIndex]?.title || "News Title"}</h3>
-                                    {/* <p>{newsItems[currentNewsIndex]?.source || "News Source"}</p> */}
-                                </NewsInfo>
-                                <ControlsWrapper>
-                                    <RatingButtons>
-                                        <RatingButton onClick={() => handleRating('positive')} disabled={isLoading}>
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                                            </svg>
-                                        </RatingButton>
-                                        <RatingButton onClick={() => handleRating('negative')} disabled={isLoading}>
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-                                            </svg>
-                                        </RatingButton>
-                                    </RatingButtons>
-                                    <ProgressBar>
-                                        <Progress progress={progress} />
-                                    </ProgressBar>
-                                    <Controls>
-                                        <ControlButton onClick={handlePrevious} disabled={currentNewsIndex <= 0}>⏮</ControlButton>
-                                        <ControlButton onClick={handlePlayPause} disabled={isLoading}>
-                                            {isLoading ? '⏳' : isPlaying ? '⏸' : '▶'}
-                                        </ControlButton>
-                                        <ControlButton onClick={handleNext} disabled={currentNewsIndex >= newsItems.length - 1}>⏭</ControlButton>
-                                    </Controls>
-                                </ControlsWrapper>
+                                <MainContent>
+                                    <TopSection>
+                                        <PlaylistInfo>
+                                            <Title>Hello {user.firstName}</Title>
+                                            <Subtitle>Your {getTimeOfDay()} newscast</Subtitle>
+                                        </PlaylistInfo>
+                                        <NewsInfo>
+                                            <h3>{newsItems[currentNewsIndex]?.title || "News Title"}</h3>
+                                        </NewsInfo>
+                                    </TopSection>
+                                    <ControlsWrapper>
+                                        <RatingButtons>
+                                            <RatingButton onClick={() => handleRating('positive')} disabled={isLoading}>
+                                                <svg viewBox="0 0 24 24">
+                                                    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                                                </svg>
+                                            </RatingButton>
+                                            <RatingButton onClick={() => handleRating('negative')} disabled={isLoading}>
+                                                <svg viewBox="0 0 24 24">
+                                                    <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                                                </svg>
+                                            </RatingButton>
+                                        </RatingButtons>
+                                        <ProgressBar>
+                                            <Progress progress={progress} />
+                                        </ProgressBar>
+                                        <Controls>
+                                            <ControlButton onClick={handlePrevious} disabled={currentNewsIndex <= 0}>
+                                                <svg viewBox="0 0 24 24">
+                                                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                                                </svg>
+                                            </ControlButton>
+                                            <ControlButton onClick={handlePlayPause} disabled={isLoading}>
+                                                {isLoading ? (
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/>
+                                                    </svg>
+                                                ) : isPlaying ? (
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                                                    </svg>
+                                                ) : (
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M8 5v14l11-7z"/>
+                                                    </svg>
+                                                )}
+                                            </ControlButton>
+                                            <ControlButton onClick={handleNext} disabled={currentNewsIndex >= newsItems.length - 1}>
+                                                <svg viewBox="0 0 24 24">
+                                                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                                                </svg>
+                                            </ControlButton>
+                                        </Controls>
+                                    </ControlsWrapper>
+                                </MainContent>
+                                <SummaryWrapper>
+                                    <SummaryTitle>Summary</SummaryTitle>
+                                    <SummaryText>
+                                        {newsItems[currentNewsIndex]?.summary_50 || "No summary available."}
+                                    </SummaryText>
+                                </SummaryWrapper>
                             </ContentWrapper>
-                            <SummaryWrapper>
-                                <SummaryTitle>Summary</SummaryTitle>
-                                <SummaryText>
-                                    {newsItems[currentNewsIndex]?.summary_50 || "No summary available."}
-                                </SummaryText>
-                            </SummaryWrapper>
-                        </ScrollableContent>
+                        </>
                     )}
                 </Card>
             </AppContainer>

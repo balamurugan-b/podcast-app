@@ -8,12 +8,18 @@ import '@fontsource/comfortaa/400.css'; // Regular weight
 import '@fontsource/comfortaa/700.css'; // Bold weight
 
 const GlobalStyle = createGlobalStyle`
-  body {
-    font-family: 'Inter', sans-serif;
+  html, body, #root {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: ${({ theme }) => theme.fonts.body};
     background-color: ${({ theme }) => theme.colors.background};
+    color: ${({ theme }) => theme.colors.text};
   }
 
   h1, h2 {
@@ -26,7 +32,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   * {
-    box-sizing: inherit;
+    box-sizing: border-box;
   }
 `;
 
