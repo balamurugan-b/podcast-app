@@ -25,13 +25,12 @@ export const HeaderContainer = styled.div`
   align-items: center; // Add this line
   width: 100vw;
   max-width: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
   position: absolute;
   overflow: hidden;
-  padding: 10px;
   z-index: 10;
   
+  background-color: rgba(0, 0, 0, 0.5);
   left: 50%;
   transform: translateX(-50%);
 
@@ -40,6 +39,15 @@ export const HeaderContainer = styled.div`
     border-radius: 0;
     border: none;
   }
+`;
+
+export const ContentContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+
 `;
 
 export const Card = styled.div`
@@ -84,6 +92,14 @@ export const Subtitle = styled.h3`
   font-family: ${({ theme }) => theme.fonts.body};
 `;
 
+export const SubtitleDark = styled.h3`
+  font-size: 20px;
+  margin-top: 0;
+  font-family: ${({ theme }) => theme.fonts.body};
+  color: ${({ theme }) => theme.colors.primary};
+`;
+
+
 export const Button = styled.button`
   background: ${({ theme }) => theme.colors.accent};
   border: none;
@@ -122,4 +138,220 @@ export const ScrollableContent = styled.div`
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+`;
+
+export const BackgroundOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${props => props.src});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+`;
+
+export const ContentWrapper = styled.div`
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+`;
+
+export const MainContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 90vh;
+  padding: 20px;
+  padding-top: 100px;
+`;
+
+export const TopSection = styled.div`
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+`;
+
+export const PlaylistInfo = styled.div`
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: 20px;
+`;
+
+export const NewsInfo = styled.div`
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text};
+  margin-top: 60px;
+  margin-bottom: 20px;
+`;
+
+export const ControlsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+`;
+
+export const RatingButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 20px;
+`;
+
+export const RatingButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 20px;
+  padding: 0;
+  transition: opacity 0.3s ease;
+  &:disabled {
+    opacity: 0.5;
+  }
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: ${({ theme }) => theme.colors.text};
+    transition: fill 0.3s ease;
+  }
+  &:hover:not(:disabled) svg {
+    fill: ${({ theme }) => theme.colors.accent};
+  }
+`;
+
+export const ProgressBar = styled.div`
+  width: 100%;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 20px;
+`;
+
+export const Progress = styled.div`
+  width: ${props => props.progress}%;
+  height: 100%;
+  background-color: ${({ theme }) => theme.colors.accent};
+`;
+
+export const Controls = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+export const ControlButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  transition: opacity 0.3s ease, color 0.3s ease;
+  &:disabled {
+    opacity: 0.5;
+  }
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: ${({ theme }) => theme.colors.text};
+    transition: fill 0.3s ease;
+  }
+  &:hover:not(:disabled) svg {
+    fill: ${({ theme }) => theme.colors.accent};
+  }
+`;
+
+export const NewsHeadline = styled.h4`
+  font-size: 24px;
+  text-align: left;
+  padding: 10px;
+  color: #FFF;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin: auto;
+`;
+
+export const SummaryWrapper = styled.div`
+  width: 100%;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  margin-top: 20px;
+`;
+
+export const SummaryTitle = styled.h4`
+  font-size: 18px;
+  color: ${({ theme }) => theme.colors.text};
+  margin: 0 0 10px 0;
+`;
+
+export const SummaryText = styled.p`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.secondary};
+  line-height: 1.5;
+`;
+
+export const FullScreenBackground = styled.div`
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url(${props => props.src});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(5px) brightness(1.3) opacity(0.5);
+  z-index: -1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+`;
+
+export const RatingMessage = styled.span`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.accent};
+  margin-left: 10px;
+  opacity: ${props => props.visible ? 1 : 0};
+  transition: opacity 0.3s ease;
 `;

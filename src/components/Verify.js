@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import theme from '../styles/theme';
 import GlobalStyle from '../styles/GlobalStyle';
-import { AppContainer, Header, Title, Subtitle, Button, Input, ErrorMessage, FormContainer } from '../styles/SharedComponents';
+import { AppContainer, ContentContainer, MainContent, Header,  Title, SubtitleDark, Button, Input, ErrorMessage, FormContainer } from '../styles/SharedComponents';
 import { useAuth } from '../utils/AuthProvider';
+import BrandHeader from './BrandHeader';
 
 const Verify = ({ email, onVerificationSuccess }) => {
   const [verificationCode, setVerificationCode] = useState('');
@@ -32,24 +33,28 @@ const Verify = ({ email, onVerificationSuccess }) => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      <BrandHeader />
       <AppContainer>
-        <Header>
-          <Title>Verify Your Account</Title>
-        </Header>
-        <FormContainer>
-          <Subtitle>Enter the verification code</Subtitle>
-
-          <Input
-            placeholder="Verification Code"
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-            disabled={isLoading}
-          />
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-          <Button onClick={handleVerify} disabled={isLoading}>
-            {isLoading ? 'Verifying...' : 'Verify'}
-          </Button>
-        </FormContainer>
+        <ContentContainer>
+          <MainContent>
+            <Header>
+              <Title>Verify Your Account</Title>
+            </Header>
+            <FormContainer>
+              <SubtitleDark>Enter the verification code</SubtitleDark>
+              <Input
+                placeholder="Verification Code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                disabled={isLoading}
+              />
+              {error && <ErrorMessage>{error}</ErrorMessage>}
+              <Button onClick={handleVerify} disabled={isLoading}>
+                {isLoading ? 'Verifying...' : 'Verify'}
+              </Button>
+            </FormContainer>
+          </MainContent>
+        </ContentContainer>
       </AppContainer>
     </ThemeProvider>
   );

@@ -1,167 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
-import styled from 'styled-components';
 import { ThemeProvider } from 'styled-components';
 import GlobalStyle from '../styles/GlobalStyle';
 import theme from '../styles/theme';
-import { AppContainer, Card, ErrorMessage, Title, Subtitle, ScrollableContent } from '../styles/SharedComponents';
+import {
+  AppContainer, Card, ErrorMessage, Title, Subtitle, ScrollableContent, ContentContainer,
+  BackgroundOverlay, ContentWrapper, MainContent, TopSection, PlaylistInfo, NewsInfo,
+  ControlsWrapper, RatingButtons, RatingButton, ProgressBar, Progress, Controls, ControlButton,
+  NewsHeadline, SummaryWrapper, SummaryTitle, SummaryText, FullScreenBackground, RatingMessage
+} from '../styles/SharedComponents';
 import { useAuth } from '../utils/AuthProvider';
 import defaultBg from '../assets/bg1.jpg';
 import { rateNews } from '../utils/api';
-import Header from './Header';
-
-const BackgroundOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${props => props.src});
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-`;
-
-const ContentWrapper = styled.div`
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-`;
-
-const MainContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 90vh;
-  padding: 20px;
-  padding-top: 100px; // Adjust this value based on your header height
-`;
-
-const TopSection = styled.div`
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-`;
-
-const PlaylistInfo = styled.div`
-  text-align: center;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 20px;
-`;
-
-const NewsInfo = styled.div`
-  text-align: center;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 20px;
-`;
-
-const ControlsWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: auto; // Push controls to the bottom of MainContent
-`;
-
-const RatingButtons = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  margin-bottom: 20px;
-`;
-
-const RatingButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-left: 20px;
-  padding: 0;
-  &:disabled {
-    opacity: 0.5;
-  }
-  svg {
-    width: 24px;
-    height: 24px;
-    fill: ${({ theme }) => theme.colors.text};
-  }
-`;
-
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 4px;
-  background-color: rgba(255, 255, 255, 0.3);
-  margin-bottom: 20px;
-`;
-
-const Progress = styled.div`
-  width: ${props => props.progress}%;
-  height: 100%;
-  background-color: ${({ theme }) => theme.colors.accent};
-`;
-
-const Controls = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: space-around;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const ControlButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  &:disabled {
-    opacity: 0.5;
-  }
-  svg {
-    width: 24px;
-    height: 24px;
-    fill: ${({ theme }) => theme.colors.text};
-  }
-`;
-
-export const NewsHeadline = styled.h4`
-  font-size: 24px;
-  text-align: left;
-  padding: 10px;
-  color: #FFF; // ${({ theme }) => theme.colors.text}
-  background-color: rgba(0, 0, 0, 0.25); // Lighter background
-  margin: auto; // Center vertically
-`;
-
-const SummaryWrapper = styled.div`
-  width: 100%;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 10px;
-  margin-top: 20px;
-`;
-
-const SummaryTitle = styled.h4`
-  font-size: 18px;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 10px;
-`;
-
-const SummaryText = styled.p`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.secondary};
-  line-height: 1.5;
-`;
+import BrandHeader from './BrandHeader';
 
 const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurrentNewsIndex, shouldPlayIntro, setShouldPlayIntro }) => {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -170,6 +22,7 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
     const [errorMessage, setErrorMessage] = useState('');
     const [progress, setProgress] = useState(0);
     const [fallbackImage, setFallbackImage] = useState(false);
+    const [ratingMessage, setRatingMessage] = useState('');
 
     const audioRef = useRef(null);
     const navigate = useNavigate();
@@ -317,9 +170,9 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
 
     const getTimeOfDay = useCallback(() => {
         const hour = new Date().getHours();
-        if (hour < 12) return 'Morning';
-        if (hour < 17) return 'Afternoon';
-        return 'Evening';
+        if (hour < 12) return 'morning';
+        if (hour < 17) return 'afternoon';
+        return 'evening';
     }, []);
 
     const renderContent = useMemo(() => {
@@ -348,11 +201,12 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
             const newsId = newsItems[currentNewsIndex].id;
             try {
                 await rateNews(newsId, rating);
-                // You can add some visual feedback here if needed
-                console.log(`Rated news item ${newsId} as ${rating}`);
+                setRatingMessage('Thanks for rating!');
+                setTimeout(() => setRatingMessage(''), 3000); // Hide message after 3 seconds
             } catch (error) {
                 console.error('Failed to submit rating:', error);
-                // You can add some error handling UI here if needed
+                setRatingMessage('Rating failed. Please try again.');
+                setTimeout(() => setRatingMessage(''), 3000);
             }
         }
     }, [currentNewsIndex, newsItems]);
@@ -360,14 +214,15 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle />
-            <Header />
+            <BrandHeader />
             <AppContainer {...swipeHandlers}>
-                <Card>
-                    {errorMessage ? (
-                        <ErrorMessage>{errorMessage}</ErrorMessage>
-                    ) : (
-                        <>
-                            <BackgroundOverlay src={newsItems[currentNewsIndex]?.image || defaultBg} />
+                <FullScreenBackground src={newsItems[currentNewsIndex]?.image || defaultBg} />
+                <ContentContainer>
+                    <Card>
+                        <BackgroundOverlay src={newsItems[currentNewsIndex]?.image || defaultBg} />
+                        {errorMessage ? (
+                            <ErrorMessage>{errorMessage}</ErrorMessage>
+                        ) : (
                             <ContentWrapper>
                                 <MainContent>
                                     <TopSection>
@@ -381,7 +236,8 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                                     </TopSection>
                                     <ControlsWrapper>
                                         <RatingButtons>
-                                            <RatingButton onClick={() => handleRating('positive')} disabled={isLoading}>
+                                        <RatingMessage visible={!!ratingMessage}>{ratingMessage}</RatingMessage>
+                                        <RatingButton onClick={() => handleRating('positive')} disabled={isLoading}>
                                                 <svg viewBox="0 0 24 24">
                                                     <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
                                                 </svg>
@@ -431,9 +287,9 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                                     </SummaryText>
                                 </SummaryWrapper>
                             </ContentWrapper>
-                        </>
-                    )}
-                </Card>
+                        )}
+                    </Card>
+                </ContentContainer>
             </AppContainer>
         </ThemeProvider>
     );

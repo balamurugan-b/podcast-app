@@ -8,7 +8,7 @@ import { getLocationAsync } from './utils/location';
 import { fetchNews } from './utils/api';
 import { AuthProvider, useAuth } from './utils/AuthProvider';
 import { isNewDay } from './utils/dateUtils'; // Add this import
-import Header from './components/Header';
+import BrandHeader from './components/BrandHeader';
 import PlayerScreen from './components/PlayerScreen';
 
 const MainApp = () => {
