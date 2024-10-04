@@ -10,6 +10,9 @@ import { AuthProvider, useAuth } from './utils/AuthProvider';
 import { isNewDay } from './utils/dateUtils'; // Add this import
 import BrandHeader from './components/BrandHeader';
 import PlayerScreen from './components/PlayerScreen';
+import Home from './components/Home'; // Add this import
+import { ThemeProvider } from 'styled-components';
+import theme from './styles/theme';
 
 const MainApp = () => {
   const { user, loading, logout } = useAuth();
@@ -146,6 +149,13 @@ const MainApp = () => {
       <Route path="/" element={
         user ? (
           <Navigate to="/news" replace />
+        ) : (
+          <Home /> // Add this line to render the Home component for non-logged-in users
+        )
+      } />
+      <Route path="/login" element={
+        user ? (
+          <Navigate to="/news" replace />
         ) : showVerification && isSignup ? (
           <Verify email={email} onVerificationSuccess={handleVerificationSuccess} />
         ) : (
@@ -207,11 +217,13 @@ const LogoutHandler = ({ onLogout }) => {
 };
 
 const App = () => (
-  <AuthProvider>
-    <Router>
-      <MainApp />
-    </Router>
-  </AuthProvider>
+  <ThemeProvider theme={theme}>
+    <AuthProvider>
+      <Router>
+        <MainApp />
+      </Router>
+    </AuthProvider>
+  </ThemeProvider>
 );
 
 export default App;
