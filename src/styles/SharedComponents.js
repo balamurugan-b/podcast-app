@@ -9,7 +9,7 @@ export const AppContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: #FFF;
   margin: 0 auto;
   box-sizing: border-box;
   position: fixed;
@@ -47,7 +47,7 @@ export const ContentContainer = styled.div`
   max-width: 500px;
   margin: 0 auto;
   position: relative;
-
+  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Card = styled.div`
@@ -121,6 +121,7 @@ export const Input = styled.input`
   border-radius: 5px;
   margin-bottom: 10px;
   padding: 0 10px;
+  font-size: 1em;
   font-family: ${({ theme }) => theme.fonts.body};
   width: 100%;
 `;

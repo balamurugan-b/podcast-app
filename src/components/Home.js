@@ -1,17 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import defaultBg from '../assets/bg1.jpg';
 import screenshot1 from '../assets/screenshots/1.jpg';
-import screenshot2 from '../assets/screenshots/2.jpg';
-import screenshot3 from '../assets/screenshots/3.jpg';
+import ecommercePic from '../assets/cliparts/ecommerce.jpeg';
+import audioPic from '../assets/cliparts/audio.jpeg';
+import hourglassPic from '../assets/cliparts/hourglass.jpeg';
+import podcastPic from '../assets/cliparts/podcast.jpeg';
+
 import {
-  Button,
-  AppContainer,
-  ContentContainer,
-  Title,
-  Subtitle,
-  SubtitleDark
+  Button
 } from '../styles/SharedComponents';
 
 // Keep the existing styled components that are specific to Home
@@ -19,7 +16,7 @@ const HomeContainer = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: ${({ theme }) => `linear-gradient(to bottom, ${theme.colors.primaryDarker}, ${theme.colors.primary})`};
+  background: ${({ theme }) => `linear-gradient(to top, ${theme.colors.primaryDarker}, ${theme.colors.primaryLight})`};
   color: #fff;
   padding: 2rem;
 
@@ -60,6 +57,7 @@ const RightSection = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: ${({ theme }) => theme.colors.primaryDark};
 
   @media (min-width: 768px) {
     max-width: 50%;
@@ -80,7 +78,7 @@ const InsightsSection = styled.div`
 `;
 
 const InsightCard = styled.div`
-  background: ${({ theme }) => `linear-gradient(to bottom, ${theme.colors.primaryDarker}, ${theme.colors.primary})`};
+  background: ${({ theme }) => `linear-gradient(to top, ${theme.colors.primaryDark}, ${theme.colors.primaryLight})`};
   border-radius: 10px;
   padding: 2rem 1rem;
   flex: 1;
@@ -107,7 +105,7 @@ const Brand = styled.h1`
 `;
 
 const Headline = styled.h1`
-  font-family: ${({ theme }) => theme.fonts.heading};
+  font-family: ${({ theme }) => theme.fonts.body};
   font-size: 3rem;
   font-weight: 300;
   color: ${({ theme }) => theme.colors.text};
@@ -117,7 +115,6 @@ const Headline = styled.h1`
 const Subheadline = styled.p`
   font-family: ${({ theme }) => theme.fonts.body};
   font-size: 1.2rem;
-  font-weight: 300;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: 2rem;
 `;
@@ -135,14 +132,13 @@ const InsightTitleSmall = styled.h4`
   font-family: ${({ theme }) => theme.fonts.heading};
   font-size: 1rem;
   margin: 0;
-  color: ${({ theme }) => theme.colors.primaryLight};
+  color: ${({ theme }) => theme.colors.primaryLighter};
 `;
 
 const InsightSubtitle = styled.p`
   font-family: ${({ theme }) => theme.fonts.body};
   font-size: 1rem;
-  font-weight: 300;
-  color: ${({ theme }) => theme.colors.secondary};
+  color: ${({ theme }) => theme.colors.background};
   margin-bottom: 2rem;
 `;
 
@@ -167,7 +163,7 @@ const InsightImage = styled.img`
   margin-top: auto; // This will push the image to the bottom
 
   @media (min-width: 768px) {
-    max-width: 500px; // Smaller max-width for desktop to maintain square shape
+    max-width: 600px; // Smaller max-width for desktop to maintain square shape
   }
 `;
 
@@ -223,7 +219,7 @@ const Home = () => {
             <InsightTitle>Tailored for You.</InsightTitle>
             <InsightSubtitle>Essence curates content from top sources, tailored to your specific industry and role. Stay relevant without the noise</InsightSubtitle>
           </div>
-          <InsightImage src={screenshot2} alt="App screenshot" />
+          <InsightImage src={ecommercePic} alt="App screenshot" />
         </InsightCard>
         <InsightCard>
           <div>
@@ -231,7 +227,7 @@ const Home = () => {
             <InsightTitle>Audio-First Experience</InsightTitle>
             <InsightSubtitle>Transform your daily routine into a learning opportunity. Catch up on industry trends while you commute, exercise, or prep for your day.</InsightSubtitle>
           </div>
-          <InsightImage src={screenshot1} alt="App screenshot" />
+          <InsightImage src={audioPic} alt="App screenshot" />
         </InsightCard>
       </InsightsSection>
       <InsightsSection>
@@ -241,7 +237,7 @@ const Home = () => {
             <InsightTitle>30 Seconds to Savvy</InsightTitle>
             <InsightSubtitle>Each news item is distilled into a 30-second audio clip. Get the essentials quickly, without sacrificing depth.</InsightSubtitle>
           </div>
-          <InsightImage src={screenshot2} alt="App screenshot" />
+          <InsightImage src={hourglassPic} alt="App screenshot" />
         </InsightCard>
         <InsightCard>
           <div>
@@ -249,7 +245,7 @@ const Home = () => {
             <InsightTitle>News That Feels Like Conversation</InsightTitle>
             <InsightSubtitle>Our hosts present insights in a lively, podcast-style format. It's not just information—it's infotainment.</InsightSubtitle>
           </div>
-          <InsightImage src={screenshot1} alt="App screenshot" />
+          <InsightImage src={podcastPic} alt="App screenshot" />
         </InsightCard>
       </InsightsSection>
       <Footer>

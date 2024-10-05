@@ -1,16 +1,18 @@
 const theme = {
     colors: {
-        brand: '#93beff',
+        brand: '#6fa8ff',
         primary: '#4B4741',
-        primaryDark: '#33302B',
-        primaryDarker: '#211F1C',
-        primaryLight: '#635E56',
+        primaryDark: '#3c3834',
+        primaryDarker: '#2d2a27',
+        primaryLight: '#6e6b66',
+        primaryLighter: '#93908d',
+        
         secondary: '#ecdfcc',
-        secondaryDark: '#d3c7b7',
-        secondaryLight: '#fcfaf7',
+        secondaryDark: '#bcb2a3',
+        secondaryLight: '#f1e8db',
         background: '#fcfaf7',
         text: '#FFFFFF', // Changed to white for better contrast on dark background
-        accent: '#3184FF',
+        accent: '#4790ff',
         darkOverlay: 'rgba(0, 0, 0, 0.7)',
     },
     fonts: {
