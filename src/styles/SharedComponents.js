@@ -99,7 +99,6 @@ export const SubtitleDark = styled.h3`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
-
 export const Button = styled.button`
   background: ${({ theme }) => theme.colors.accent};
   border: none;
@@ -184,7 +183,6 @@ export const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 90vh;
   padding: 20px;
   padding-top: 100px;
 `;
@@ -205,8 +203,7 @@ export const PlaylistInfo = styled.div`
 export const NewsInfo = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
-  margin-top: 60px;
-  margin-bottom: 20px;
+  margin: 80px 20px;
 `;
 
 export const ControlsWrapper = styled.div`
@@ -214,7 +211,7 @@ export const ControlsWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   margin-top: auto;
-`;
+  `;
 
 export const RatingButtons = styled.div`
   display: flex;
@@ -227,7 +224,7 @@ export const RatingButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  margin-left: 20px;
+  margin-left: 40px;
   padding: 0;
   transition: opacity 0.3s ease;
   &:disabled {
@@ -268,21 +265,15 @@ export const Controls = styled.div`
 export const ControlButton = styled.button`
   background: none;
   border: none;
-  font-size: 24px;
-  color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  transition: opacity 0.3s ease, color 0.3s ease;
+  padding: 0;
+  transition: opacity 0.3s ease;
   &:disabled {
     opacity: 0.5;
   }
   svg {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     fill: ${({ theme }) => theme.colors.text};
     transition: fill 0.3s ease;
   }
@@ -305,7 +296,7 @@ export const SummaryWrapper = styled.div`
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
-  margin-top: 20px;
+  margin-bottom: 20px; // Add this line
 `;
 
 export const SummaryTitle = styled.h4`

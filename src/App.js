@@ -123,9 +123,9 @@ const MainApp = () => {
 
   const handleLoginSuccess = useCallback((userEmail, token, isNewUser) => {
     setEmail(userEmail);
-
+    setIsSignup(isNewUser);
+    
     if (isNewUser) {
-      setIsSignup(true);
       setShowVerification(true);
       navigate('/verify');
     } else {
@@ -150,16 +150,23 @@ const MainApp = () => {
         user ? (
           <Navigate to="/news" replace />
         ) : (
-          <Home /> // Add this line to render the Home component for non-logged-in users
+          <Home />
         )
       } />
       <Route path="/login" element={
         user ? (
           <Navigate to="/news" replace />
+        ) : (
+          <Login onLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />
+        )
+      } />
+      <Route path="/verify" element={
+        user ? (
+          <Navigate to="/news" replace />
         ) : showVerification && isSignup ? (
           <Verify email={email} onVerificationSuccess={handleVerificationSuccess} />
         ) : (
-          <Login onLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />
+          <Navigate to="/login" replace />
         )
       } />
       <Route path="/logout" element={
