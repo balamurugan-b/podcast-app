@@ -2,10 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import screenshot1 from '../assets/screenshots/1.jpg';
-import ecommercePic from '../assets/cliparts/ecommerce.jpeg';
-import audioPic from '../assets/cliparts/audio.jpeg';
-import hourglassPic from '../assets/cliparts/hourglass.jpeg';
-import podcastPic from '../assets/cliparts/podcast.jpeg';
+import ecommercePic from '../assets/cliparts/ecommerce.jpg';
+import audioPic from '../assets/cliparts/audio.jpg';
+import hourglassPic from '../assets/cliparts/hourglass.jpg';
+import podcastPic from '../assets/cliparts/podcast.jpg';
 
 import {
   Button
