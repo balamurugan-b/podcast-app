@@ -63,6 +63,7 @@ export const signIn = async (email, firstName, country, language) => {
   } else {
     return {
       isNewUser: false,
+      verificationRequired: data.verificationRequired,
       token: data.token
     };
   }
@@ -125,12 +126,17 @@ export const refreshToken = async () => {
   try {
     const response = await apiCall('/user/refresh_token', 'POST');
     if (!response.ok) {
+      if (response.status === 401) {
+        clearToken();
+        throw new Error('Unauthorized: Token refresh failed');
+      }
       throw new Error('Token refresh failed');
     }
     const data = await response.json();
+    setToken(data.token);
     return data.token;
   } catch (error) {
-    clearToken();
+    console.error('Error refreshing token:', error);
     throw error;
   }
 };

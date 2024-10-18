@@ -127,7 +127,7 @@ export const Input = styled.input`
 
 // Add this near the top of the file with other styled components
 export const ErrorMessage = styled.div`
-  color: red;
+  color: ${({ theme }) => theme.colors.text};
   text-align: center;
   margin-top: 20px;
   font-size: 1rem;
@@ -149,13 +149,16 @@ export const ScrollableContent = styled.div`
   scrollbar-width: none;  /* Firefox */
 `;
 
-export const BackgroundOverlay = styled.div`
+export const BackgroundOverlay = styled.div.attrs(props => ({
+  style: {
+    backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${props.src})`,
+  },
+}))`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${props => props.src});
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -187,23 +190,44 @@ export const MainContent = styled.div`
   padding-top: 100px;
 `;
 
-export const TopSection = styled.div`
+export const TopSection = styled.div.attrs(props => ({
+  style: {
+    paddingTop: props.welcomeShown ? '80px' : '40px',
+  },
+}))`
+  position: relative;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  transition: padding-top 1s ease-out;
 `;
 
-export const PlaylistInfo = styled.div`
-  text-align: center;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 20px;
+export const PlaylistInfo = styled.div.attrs(props => ({
+  style: {
+    opacity: props.show ? 1 : 0,
+    transform: props.show ? 'translateY(0)' : 'translateY(-100%)',
+    pointerEvents: props.show ? 'auto' : 'none',
+  },
+}))`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transition: opacity 1s ease-out, transform 1s ease-out;
+  z-index: 10;
+  padding: 20px;
 `;
 
-export const NewsInfo = styled.div`
+export const NewsInfo = styled.div.attrs(props => ({
+  style: {
+    transform: props.welcomeShown ? 'translateY(0)' : 'translateY(-40px)',
+  },
+}))`
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
-  margin: 80px 20px;
+  margin: 100px 20px;
+  transition: transform 1s ease-out;
 `;
 
 export const ControlsWrapper = styled.div`
@@ -248,8 +272,11 @@ export const ProgressBar = styled.div`
   margin-bottom: 20px;
 `;
 
-export const Progress = styled.div`
-  width: ${props => props.progress}%;
+export const Progress = styled.div.attrs(props => ({
+  style: {
+    width: `${props.progress}%`,
+  },
+}))`
   height: 100%;
   background-color: ${({ theme }) => theme.colors.accent};
 `;
@@ -283,12 +310,13 @@ export const ControlButton = styled.button`
 `;
 
 export const NewsHeadline = styled.h4`
-  font-size: 24px;
+  font-size: 20px;
+  font-weight: 500;
   text-align: left;
   padding: 10px;
   color: #FFF;
-  background-color: rgba(0, 0, 0, 0.25);
   margin: auto;
+  font-family: ${({ theme }) => theme.fonts.body};
 `;
 
 export const SummaryWrapper = styled.div`
@@ -311,14 +339,17 @@ export const SummaryText = styled.p`
   line-height: 1.5;
 `;
 
-export const FullScreenBackground = styled.div`
+export const FullScreenBackground = styled.div.attrs(props => ({
+  style: {
+    backgroundImage: `url(${props.src})`,
+  },
+}))`
   display: none;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url(${props => props.src});
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -340,10 +371,31 @@ export const FullScreenBackground = styled.div`
   }
 `;
 
-export const RatingMessage = styled.span`
+export const RatingMessage = styled.span.attrs(props => ({
+  style: {
+    opacity: props.visible ? 1 : 0,
+  },
+}))`
   font-size: 14px;
   color: ${({ theme }) => theme.colors.accent};
   margin-left: 10px;
-  opacity: ${props => props.visible ? 1 : 0};
   transition: opacity 0.3s ease;
+`;
+
+export const CategoryButton = styled.span`
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 10px;
+  background-color: ${props => `${props.theme.colors.secondaryLight}99`};
+  color: ${props => props.theme.colors.text};
+  border-radius: 5px;
+  font-weight: 500;
+`;
+
+export const CategoryContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
 `;

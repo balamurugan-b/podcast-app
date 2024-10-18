@@ -12,7 +12,7 @@ const Login = ({ onLoginSuccess, onLogout }) => {
     const [firstName, setFirstName] = useState('');
     const [country, setCountry] = useState('');
     const [language, setLanguage] = useState('');
-    const { login, logout, user } = useAuth();
+    const { login, logout, user, updateFirstName } = useAuth();
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -25,12 +25,13 @@ const Login = ({ onLoginSuccess, onLogout }) => {
         setCountry(country.toUpperCase() || 'UK');
     }, []);
 
-    // Set firstName if available in user object
+    // Set firstName if available in user object or stored in localStorage
     useEffect(() => {
-        if (user && user.firstName) {
-            setFirstName(user.firstName);
+        const storedFirstName = localStorage.getItem('firstName');
+        if (storedFirstName) {
+            setFirstName(storedFirstName);
         }
-    }, [user]);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,7 +39,8 @@ const Login = ({ onLoginSuccess, onLogout }) => {
         setIsLoading(true);
         try {
             const result = await login(email, firstName, country, language);
-            onLoginSuccess(email, result.token, result.isNewUser);
+            console.log(result);
+            onLoginSuccess(email, result.token, result.isNewUser, result.verificationRequired);
         } catch (error) {
             setError(error.message || 'Login failed. Please try again.');
         } finally {

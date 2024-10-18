@@ -10,10 +10,21 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Existing getLoginStatus method
+  // New function to update firstName in localStorage and state
+  const updateFirstName = useCallback((newFirstName) => {
+    if (newFirstName) {
+      localStorage.setItem('firstName', toCamelCase(newFirstName));
+      setUser(prevUser => ({
+        ...prevUser,
+        firstName: toCamelCase(newFirstName)
+      }));
+    }
+  }, []);
+
+  // Modified getLoginStatus method
   const getLoginStatus = useCallback(() => {
     const today = new Date().toDateString();
-    const firstName = localStorage.getItem('firstName');
+    const firstName = localStorage.getItem('firstName') || '';
     const lastLoginDate = localStorage.getItem('lastLoginDate');
     const isFirstTimeEver = localStorage.getItem('isFirstTimeEver') !== 'false';
     const isFirstTimeToday = lastLoginDate !== today;
@@ -26,11 +37,13 @@ export const AuthProvider = ({ children }) => {
     return { firstName, isFirstTimeEver, isFirstTimeToday };
   }, []);
 
-  // Existing logout method
+  // Modified logout method
   const logout = useCallback(() => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userLocation');
-    localStorage.removeItem('lastLoginDate');
+    const firstName = localStorage.getItem('firstName');
+    localStorage.clear();
+    if (firstName) {
+      localStorage.setItem('firstName', firstName);
+    }
     setUser(null);
   }, []);
 
@@ -70,18 +83,19 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } else {
+      // If there's no token, just set user to null without attempting verification
       setUser(null);
     }
     setLoading(false);
   }, [getLoginStatus, logout]);
 
-  // Existing login method
+  // Modified login method
   const login = useCallback(async (email, inputFirstName, country, language) => {
     try {
       const result = await signIn(email, inputFirstName, country, language);
-      if (!result.isNewUser) {
+      if (result.token) {
         localStorage.setItem('userToken', result.token);
-        localStorage.setItem('firstName', inputFirstName ? toCamelCase(inputFirstName) : '');
+        updateFirstName(inputFirstName);
         
         const { firstName, isFirstTimeEver, isFirstTimeToday } = getLoginStatus();
         
@@ -97,15 +111,15 @@ export const AuthProvider = ({ children }) => {
       console.error('Login error:', error);
       throw error;
     }
-  }, [getLoginStatus]);
+  }, [getLoginStatus, updateFirstName]);
 
-  // Existing verify method
+  // Modified verify method
   const verify = useCallback(async (email, verificationCode) => {
     try {
       const userData = await verifyEmail(email, verificationCode);
       if (userData.token) {
         localStorage.setItem('userToken', userData.token);
-        localStorage.setItem('firstName', userData.firstName ? toCamelCase(userData.firstName) : '');
+        updateFirstName(userData.firstName);
         localStorage.setItem('isFirstTimeEver', 'true');
         
         const { firstName, isFirstTimeEver, isFirstTimeToday } = getLoginStatus();
@@ -122,10 +136,15 @@ export const AuthProvider = ({ children }) => {
       console.error('Verification error:', error);
       throw error;
     }
-  }, [getLoginStatus]);
+  }, [getLoginStatus, updateFirstName]);
 
   useEffect(() => {
-    ensureTokenValidity();
+    const token = localStorage.getItem('userToken');
+    if (token) {
+      ensureTokenValidity();
+    } else {
+      setLoading(false);
+    }
   }, [ensureTokenValidity]);
 
   const value = {
@@ -135,6 +154,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     loading,
     ensureTokenValidity,
+    updateFirstName,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

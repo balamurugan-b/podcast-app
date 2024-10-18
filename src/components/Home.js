@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import screenshot1 from '../assets/screenshots/1.jpg';
 import ecommercePic from '../assets/cliparts/ecommerce.jpg';
@@ -10,6 +10,8 @@ import podcastPic from '../assets/cliparts/podcast.jpg';
 import {
   Button
 } from '../styles/SharedComponents';
+
+import { useAuth } from '../utils/AuthProvider';
 
 // Keep the existing styled components that are specific to Home
 const HomeContainer = styled.div`
@@ -105,11 +107,11 @@ const Brand = styled.h1`
 `;
 
 const Headline = styled.h1`
-  font-family: ${({ theme }) => theme.fonts.body};
+  font-family: ${({ theme }) => theme.fonts.heading};
   font-size: 3rem;
-  font-weight: 300;
+  font-weight: 500;
   color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 `;
 
 const Subheadline = styled.p`
@@ -120,9 +122,9 @@ const Subheadline = styled.p`
 `;
 
 const InsightTitle = styled.h2`
-  font-family: ${({ theme }) => theme.fonts.heading};
-  font-size: 1.5rem;
-  font-weight: 300;
+  font-family: ${({ theme }) => theme.fonts.body};
+  font-size: 1.8rem;
+  font-weight: 400;
   margin-top: 0;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: 2rem;
@@ -160,10 +162,27 @@ const InsightImage = styled.img`
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: 8px;
-  margin-top: auto; // This will push the image to the bottom
+  margin-top: auto;
+  filter: brightness(0.7) contrast(0.8);
+  transition: filter 0.3s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+  }
+
+  &:hover {
+    filter: brightness(0.9) contrast(1.05);
+  }
 
   @media (min-width: 768px) {
-    max-width: 600px; // Smaller max-width for desktop to maintain square shape
+    max-width: 600px;
   }
 `;
 
@@ -195,18 +214,29 @@ const FooterLink = styled.a`
 `;
 
 const Home = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleTryItOut = () => {
+    if (user) {
+      navigate('/news');
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <HomeContainer>
       <MainContent>
         <LeftSection>
           <Brand>essence</Brand>
-          <Headline>Your industry's news in 30-second soundbites</Headline>
+          <Headline>e-commerce news in 30-second soundbites</Headline>
           <Subheadline>
             Essence delivers curated, personalized audio insights for busy professionals. Get informed on your commute, no reading required.
           </Subheadline>
-          <StyledLink to="/login">
-            <Button>Try it out</Button>
-          </StyledLink>
+          <Button onClick={handleTryItOut}>
+            {user ? 'Go to News' : 'Try it out'}
+          </Button>
         </LeftSection>
         <RightSection>
           <AppImage src={screenshot1} alt="App screenshot" />
@@ -216,7 +246,7 @@ const Home = () => {
         <InsightCard>
           <div>
             <InsightTitleSmall>Your Industry. Your News.</InsightTitleSmall>
-            <InsightTitle>Tailored for You.</InsightTitle>
+            <InsightTitle>Tailored for You</InsightTitle>
             <InsightSubtitle>Essence curates content from top sources, tailored to your specific industry and role. Stay relevant without the noise</InsightSubtitle>
           </div>
           <InsightImage src={ecommercePic} alt="App screenshot" />
@@ -250,9 +280,9 @@ const Home = () => {
       </InsightsSection>
       <Footer>
         <Brand>essence</Brand>
-        <StyledLink to="/login">
-            <Button>Try now</Button>
-          </StyledLink>
+        <Button onClick={handleTryItOut}>
+          {user ? 'Go to News' : 'Try now'}
+        </Button>
         <FooterLinks>
           <FooterLink href="/terms">Terms</FooterLink>
           <FooterLink href="/privacy">Privacy</FooterLink>

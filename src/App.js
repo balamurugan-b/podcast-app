@@ -35,6 +35,9 @@ const MainApp = () => {
   const [isSignup, setIsSignup] = useState(false);
   const navigate = useNavigate();
   const [shouldPlayIntro, setShouldPlayIntro] = useState(false);
+  const [lastFetchAttempt, setLastFetchAttempt] = useState(() => {
+    return localStorage.getItem('lastFetchAttempt') || null;
+  });
 
   // Fetch user location
   useEffect(() => {
@@ -55,7 +58,7 @@ const MainApp = () => {
   // Combined function to fetch and update news
   const fetchAndUpdateNews = useCallback(async (isInitialFetch = false) => {
     console.log('Fetching news for user:', user);
-    console.log('News items:', newsData.articles.length);
+    console.log('News items:', newsData ? newsData.articles ? newsData.articles.length : 0 : 0);
     console.log('Current news index:', currentNewsIndex);
     if (user) {
       console.log('Fetching news for user:', user);
@@ -91,10 +94,10 @@ const MainApp = () => {
 
   // Effect to handle initial load and subsequent refreshes
   useEffect(() => {
-    if (loading) return; // Don't do anything while auth is loading
+    if (loading) return;
 
     if (user) {
-      console.log('News items on app load:', newsData.articles.length);
+      console.log('News items on app load:', newsData.articles?.length ?? 0);
       console.log('Current news index on app load:', currentNewsIndex);
 
       const lastLoginDate = localStorage.getItem('lastLoginDate');
@@ -108,24 +111,36 @@ const MainApp = () => {
         localStorage.setItem('newsData', JSON.stringify({ articles: [], intro_audio: null }));
         localStorage.setItem('currentNewsIndex', '0');
         setShouldPlayIntro(true);
+        setLastFetchAttempt(null);
       }
 
       localStorage.setItem('lastLoginDate', currentDate);
 
-      const shouldFetchNews = newsData.articles.length === 0 || currentNewsIndex >= newsData.articles.length - 2 || isNewLogin;
-      const isInitialFetch = newsData.articles.length === 0 || isNewLogin;
+      const shouldFetchNews = (
+        !newsData.articles || 
+        newsData.articles.length === 0 || 
+        currentNewsIndex >= (newsData.articles?.length ?? 0) - 2 || 
+        isNewLogin
+      ) && (
+        !lastFetchAttempt || 
+        Date.now() - new Date(lastFetchAttempt).getTime() > 2 * 60 * 1000 // 5 minutes cooldown
+      );
+      const isInitialFetch = !newsData.articles || newsData.articles.length === 0 || isNewLogin;
 
       if (shouldFetchNews) {
-        fetchAndUpdateNews(isInitialFetch); // true indicates it's an initial fetch
+        setLastFetchAttempt(new Date().toISOString());
+        localStorage.setItem('lastFetchAttempt', new Date().toISOString());
+        fetchAndUpdateNews(isInitialFetch);
       }
     }
-  }, [user, loading, fetchAndUpdateNews, currentNewsIndex, newsData.articles.length]);
+  }, [user, loading, fetchAndUpdateNews, currentNewsIndex, newsData, lastFetchAttempt]);
 
-  const handleLoginSuccess = useCallback((userEmail, token, isNewUser) => {
+  const handleLoginSuccess = useCallback((userEmail, token, isNewUser, verificationRequired) => {
     setEmail(userEmail);
     setIsSignup(isNewUser);
     
-    if (isNewUser) {
+    if (isNewUser || verificationRequired) {
+      console.log('Verification required');
       setShowVerification(true);
       navigate('/verify');
     } else {
@@ -163,7 +178,7 @@ const MainApp = () => {
       <Route path="/verify" element={
         user ? (
           <Navigate to="/news" replace />
-        ) : showVerification && isSignup ? (
+        ) : showVerification ? (
           <Verify email={email} onVerificationSuccess={handleVerificationSuccess} />
         ) : (
           <Navigate to="/login" replace />
