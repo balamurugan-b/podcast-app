@@ -2,6 +2,7 @@
   "name": "podcast-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://getessence.app",  
   "dependencies": {
     "@fontsource/comfortaa": "^5.0.22",
     "@fontsource/inter": "^5.0.21",
