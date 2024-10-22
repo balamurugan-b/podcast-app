@@ -11,7 +11,7 @@ const theme = {
         secondaryDark: '#bcb2a3',
         secondaryLight: '#f1e8db',
         background: '#fcfaf7',
-        text: '#FFFFFF', // Changed to white for better contrast on dark background
+        text: '#FFFFFF',
         accent: '#4790ff',
         darkOverlay: 'rgba(0, 0, 0, 0.7)',
     },

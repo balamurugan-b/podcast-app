@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Route, Navigate, Routes, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Verify from './components/Verify';
-import Screen2 from './components/Screen2';
 import Screen3 from './components/Screen3';
 import { getLocationAsync } from './utils/location';
 import { fetchNews } from './utils/api';
@@ -13,6 +12,7 @@ import PlayerScreen from './components/PlayerScreen';
 import Home from './components/Home'; // Add this import
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
+import GlobalStyle from './styles/GlobalStyle';
 
 const MainApp = () => {
   const { user, loading, logout } = useAuth();
@@ -57,7 +57,7 @@ const MainApp = () => {
 
   // Combined function to fetch and update news
   const fetchAndUpdateNews = useCallback(async (isInitialFetch = false) => {
-    console.log('Fetching news for user:', user);
+    console.log('Fetching news for user:', user?.email);
     console.log('News items:', newsData ? newsData.articles ? newsData.articles.length : 0 : 0);
     console.log('Current news index:', currentNewsIndex);
     if (user) {
@@ -105,6 +105,7 @@ const MainApp = () => {
 
       const isNewLogin = isNewDay(lastLoginDate, currentDate);
       if (isNewLogin) {
+        console.log('New login detected. Resetting data.');
         // Reset data for a new day
         setNewsData({ articles: [], intro_audio: null });
         setCurrentNewsIndex(0);
@@ -116,18 +117,37 @@ const MainApp = () => {
 
       localStorage.setItem('lastLoginDate', currentDate);
 
-      const shouldFetchNews = (
-        !newsData.articles || 
-        newsData.articles.length === 0 || 
-        currentNewsIndex >= (newsData.articles?.length ?? 0) - 2 || 
-        isNewLogin
-      ) && (
-        !lastFetchAttempt || 
-        Date.now() - new Date(lastFetchAttempt).getTime() > 2 * 60 * 1000 // 5 minutes cooldown
-      );
-      const isInitialFetch = !newsData.articles || newsData.articles.length === 0 || isNewLogin;
+      const noLastFetchAttempt = !lastFetchAttempt;
+      const lastFetchMoreThanTwoMinutesAgo = lastFetchAttempt && 
+        (Date.now() - new Date(lastFetchAttempt).getTime() > 2 * 60 * 1000);
+      const noArticles = !newsData.articles || newsData.articles.length === 0;
+      const nearEndOfArticles = newsData.articles && 
+        currentNewsIndex >= newsData.articles.length - 2;
+
+      let shouldFetchNews = false;
+      let fetchReason = '';
+
+      if (noLastFetchAttempt) {
+        shouldFetchNews = true;
+        fetchReason = 'No record of last fetch attempt';
+      } else if (lastFetchMoreThanTwoMinutesAgo) {
+        shouldFetchNews = true;
+        fetchReason = 'Last fetch was more than 2 minutes ago';
+      } else if (isNewLogin) {
+        shouldFetchNews = true;
+        fetchReason = 'New login detected';
+      } else if (noArticles && lastFetchMoreThanTwoMinutesAgo) {
+        shouldFetchNews = true;
+        fetchReason = 'No articles and last fetch was more than 2 minutes ago';
+      } else if (nearEndOfArticles && lastFetchMoreThanTwoMinutesAgo) {
+        shouldFetchNews = true;
+        fetchReason = 'Near end of articles and last fetch was more than 2 minutes ago';
+      }
+
+      const isInitialFetch = noArticles || isNewLogin;
 
       if (shouldFetchNews) {
+        console.log(`Fetching news. Reason: ${fetchReason}`);
         setLastFetchAttempt(new Date().toISOString());
         localStorage.setItem('lastFetchAttempt', new Date().toISOString());
         fetchAndUpdateNews(isInitialFetch);
@@ -240,6 +260,7 @@ const LogoutHandler = ({ onLogout }) => {
 
 const App = () => (
   <ThemeProvider theme={theme}>
+    <GlobalStyle />
     <AuthProvider>
       <Router>
         <MainApp />

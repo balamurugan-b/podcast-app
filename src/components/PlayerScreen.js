@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
-import { ThemeProvider } from 'styled-components';
-import GlobalStyle from '../styles/GlobalStyle';
-import theme from '../styles/theme';
 import {
     AppContainer, Card, ErrorMessage, Title, Subtitle, ScrollableContent, ContentContainer,
     BackgroundOverlay, ContentWrapper, MainContent, TopSection, PlaylistInfo, NewsInfo,
@@ -15,16 +12,16 @@ import { useAuth } from '../utils/AuthProvider';
 import defaultBg from '../assets/bg1.jpg';
 import { rateNews } from '../utils/api';
 import BrandHeader from './BrandHeader';
+import { trackEvent, trackSessionStart } from '../utils/trackingUtil';
 
 const formatCategory = (category) => {
-  return '#' + category.split(' ').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-  ).join('');
+    return '#' + category.split(' ').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join('');
 };
 
 const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, setCurrentNewsIndex, shouldPlayIntro, setShouldPlayIntro }) => {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [audio, setAudio] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const [progress, setProgress] = useState(0);
@@ -48,11 +45,6 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
         trackMouse: true
     });
 
-    const generatePastelColor = useCallback(() => {
-        const hue = Math.floor(Math.random() * 360);
-        return `hsl(${hue}, 100%, 98%)`;
-    }, []);
-
     const updateProgress = useCallback(() => {
         if (audioRef.current) {
             const progressPercent = (audioRef.current.currentTime / audioRef.current.duration) * 100;
@@ -60,11 +52,50 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
         }
     }, []);
 
+    useEffect(() => {
+        audioRef.current = new Audio();
+
+        // Request permission for background audio (iOS)
+        if (typeof navigator.mediaSession !== 'undefined') {
+            navigator.mediaSession.setActionHandler('play', () => audioRef.current?.play());
+            navigator.mediaSession.setActionHandler('pause', () => audioRef.current?.pause());
+        }
+
+        // Handle visibility change
+        const handleVisibilityChange = () => {
+            if (!document.hidden && audioRef.current && !audioRef.current.paused) {
+                audioRef.current.play().catch(error => {
+                    console.error("Auto-play failed on visibility change:", error);
+                });
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.src = '';
+            }
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+
     const playNextAudio = useCallback(() => {
+        console.log('Playing next audio', {
+            currentNewsIndex,
+            newsItemsLength: newsItems ? newsItems.length : 0,
+            shouldPlayIntro,
+            introAudio: introAudio ? 'exists' : 'null',
+            calledFrom: new Error().stack
+        });
+
         setIsLoading(true);
         setProgress(0);
-        const newAudio = new Audio();
-        newAudio.crossOrigin = "anonymous";
+        if (!audioRef.current) return;
+
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
 
         let audioSrc = '';
         if (shouldPlayIntro && introAudio) {
@@ -72,23 +103,34 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
         } else if (newsItems && currentNewsIndex < newsItems.length) {
             audioSrc = newsItems[currentNewsIndex].audio_summary;
         } else {
+            console.log('No more audio to play', {
+                currentNewsIndex,
+                newsItemsLength: newsItems ? newsItems.length : 0
+            });
             setIsPlaying(false);
             setIsLoading(false);
             return;
         }
 
-        newAudio.src = audioSrc;
+        if (audioSrc && typeof audioSrc === 'string' && audioSrc.trim() !== '') {
+            console.log('Setting valid audio source:', audioSrc);
+            audioRef.current.src = audioSrc;
+            audioRef.current.load();
+        } else {
+            console.error('Invalid audio source:', audioSrc);
+            setErrorMessage('Invalid audio source. Please try again.');
+            setIsLoading(false);
+        }
 
         const handleCanPlayThrough = () => {
-            setAudio(newAudio);
             setIsLoading(false);
-
             if (hasUserInteracted) {
-                newAudio.play().catch(error => console.error("Auto-play failed:", error));
+                audioRef.current.play().catch(error => {
+                    console.error("Auto-play failed:", error);
+                    trackEvent('error', newsItems[currentNewsIndex]?.id, newsItems[currentNewsIndex]?.title, currentNewsIndex, 0, { errorType: 'autoplay', message: error.message });
+                });
                 setIsPlaying(true);
             }
-
-            newAudio.addEventListener('timeupdate', updateProgress);
         };
 
         const handleEnded = () => {
@@ -96,30 +138,28 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                 setShouldPlayIntro(false);
                 setCurrentNewsIndex(0);
             } else {
-                setCurrentNewsIndex(prevIndex => {
-                    const newIndex = prevIndex + 1;
-                    localStorage.setItem('currentNewsIndex', newIndex);
-                    return newIndex;
-                });
+                setCurrentNewsIndex(updateCurrentNewsIndex);
             }
-
-            newAudio.removeEventListener('timeupdate', updateProgress);
         };
 
-        newAudio.addEventListener('canplaythrough', handleCanPlayThrough);
-        newAudio.addEventListener('ended', handleEnded);
-        audioRef.current = newAudio;
+        const handleError = (e) => {
+            console.error('Audio error:', e);
+            trackEvent('error', newsItems[currentNewsIndex]?.id, newsItems[currentNewsIndex]?.title, currentNewsIndex, 0, { errorType: 'loading', message: e.message });
+            setIsLoading(false);
+            setErrorMessage('Failed to load audio. Please try again.');
+        };
 
-        newAudio.load();
+        audioRef.current.addEventListener('canplaythrough', handleCanPlayThrough);
+        audioRef.current.addEventListener('ended', handleEnded);
+        audioRef.current.addEventListener('error', handleError);
+        audioRef.current.addEventListener('timeupdate', updateProgress);
 
         return () => {
             if (audioRef.current) {
-                audioRef.current.pause();
                 audioRef.current.removeEventListener('canplaythrough', handleCanPlayThrough);
                 audioRef.current.removeEventListener('ended', handleEnded);
+                audioRef.current.removeEventListener('error', handleError);
                 audioRef.current.removeEventListener('timeupdate', updateProgress);
-                audioRef.current.src = '';
-                audioRef.current.load();
             }
         };
     }, [currentNewsIndex, newsItems, introAudio, setCurrentNewsIndex, shouldPlayIntro, setShouldPlayIntro, updateProgress, hasUserInteracted]);
@@ -136,6 +176,12 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
             return;
         }
 
+        if (currentNewsIndex >= newsItems.length) {
+            console.log('Reached end of news items');
+            setErrorMessage('All caught up! Check back later for more news.');
+            return;
+        }
+
         setErrorMessage('');
         console.log('Playing next audio');
         playNextAudio();
@@ -147,7 +193,7 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                 audioRef.current.load();
             }
         };
-    }, [newsItems, navigate, playNextAudio, user, introAudio]);
+    }, [newsItems, navigate, playNextAudio, user, currentNewsIndex]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -157,33 +203,59 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
         return () => clearTimeout(timer);
     }, []);
 
+    const getCurrentNewsItem = useCallback(() => {
+        return newsItems && newsItems.length > 0 && currentNewsIndex >= 0 && currentNewsIndex < newsItems.length
+            ? newsItems[currentNewsIndex]
+            : null;
+    }, [newsItems, currentNewsIndex]);
+
     const handlePlayPause = useCallback(() => {
-        if (audio) {
-            if (isPlaying) {
-                audio.pause();
-            } else {
-                audio.play().catch(error => console.error("Audio play failed:", error));
-                setHasUserInteracted(true);
+        if (!audioRef.current) return;
+
+        const currentItem = getCurrentNewsItem();
+        if (isPlaying) {
+            audioRef.current.pause();
+            if (currentItem) {
+                trackEvent('pause', currentItem.id, currentItem.title, currentNewsIndex, audioRef.current.currentTime);
             }
-            setIsPlaying(!isPlaying);
+        } else {
+            audioRef.current.play().catch(error => {
+                console.error("Audio play failed:", error);
+                trackEvent('error', currentItem?.id, currentItem?.title, currentNewsIndex, audioRef.current.currentTime, { errorType: 'playback', message: error.message });
+            });
+            setHasUserInteracted(true);
+            if (currentItem) {
+                trackEvent('play', currentItem.id, currentItem.title, currentNewsIndex, audioRef.current.currentTime);
+            }
         }
-    }, [audio, isPlaying]);
+        setIsPlaying(!isPlaying);
+    }, [isPlaying, getCurrentNewsItem, currentNewsIndex]);
 
     const handlePrevious = useCallback(() => {
+        const currentItem = getCurrentNewsItem();
+        if (currentItem && currentNewsIndex > 0) {
+            trackEvent('previous', currentItem.id, currentItem.title, currentNewsIndex, audioRef.current?.currentTime);
+        }
         setCurrentNewsIndex(prevIndex => {
-            const newIndex = Math.max(-1, prevIndex - 1);
+            const newIndex = Math.max(0, prevIndex - 1);
             localStorage.setItem('currentNewsIndex', newIndex);
             return newIndex;
         });
-    }, [setCurrentNewsIndex]);
+    }, [setCurrentNewsIndex, getCurrentNewsItem, currentNewsIndex, audioRef]);
+
+    const updateCurrentNewsIndex = useCallback((prevIndex) => {
+        const newIndex = Math.min(newsItems.length - 1, prevIndex + 1);
+        localStorage.setItem('currentNewsIndex', newIndex);
+        return newIndex;
+    }, [newsItems]);
 
     const handleNext = useCallback(() => {
-        setCurrentNewsIndex(prevIndex => {
-            const newIndex = newsItems ? Math.min(newsItems.length - 1, prevIndex + 1) : prevIndex;
-            localStorage.setItem('currentNewsIndex', newIndex);
-            return newIndex;
-        });
-    }, [newsItems, setCurrentNewsIndex]);
+        const currentItem = getCurrentNewsItem();
+        if (currentItem && newsItems && currentNewsIndex < newsItems.length - 1) {
+            trackEvent('next', currentItem.id, currentItem.title, currentNewsIndex, audioRef.current?.currentTime);
+        }
+        setCurrentNewsIndex(updateCurrentNewsIndex);
+    }, [newsItems, updateCurrentNewsIndex, getCurrentNewsItem, currentNewsIndex, audioRef]);
 
     const handleImageError = () => {
         setFallbackImage(true);
@@ -231,13 +303,13 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                 audioRef.current.removeEventListener('timeupdate', updateProgress);
             }
         };
-    }, [updateProgress, audio]);
+    }, [updateProgress, audioRef]);
 
     const handleRating = useCallback(async (rating) => {
-        if (newsItems && currentNewsIndex >= 0 && currentNewsIndex < newsItems.length) {
-            const newsId = newsItems[currentNewsIndex].id;
+        const currentItem = getCurrentNewsItem();
+        if (currentItem) {
             try {
-                await rateNews(newsId, rating);
+                trackEvent(rating === 'positive' ? 'like' : 'dislike', currentItem.id, currentItem.title, currentNewsIndex, audioRef.current?.currentTime);
                 setRatingMessage('Thanks for rating!');
                 setTimeout(() => setRatingMessage(''), 3000);
             } catch (error) {
@@ -246,11 +318,50 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                 setTimeout(() => setRatingMessage(''), 3000);
             }
         }
-    }, [currentNewsIndex, newsItems]);
+    }, [getCurrentNewsItem, currentNewsIndex, audioRef]);
+
+    // Track scroll events
+    useEffect(() => {
+        let lastScrollPosition = window.pageYOffset;
+        const handleScroll = () => {
+            const currentScrollPosition = window.pageYOffset;
+            const currentItem = getCurrentNewsItem();
+            if (currentItem) {
+                if (currentScrollPosition > lastScrollPosition) {
+                    trackEvent('scrollDown', currentItem.id, currentItem.title, currentNewsIndex, null);
+                } else if (currentScrollPosition < lastScrollPosition) {
+                    trackEvent('scrollUp', currentItem.id, currentItem.title, currentNewsIndex, null);
+                }
+            }
+            lastScrollPosition = currentScrollPosition;
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [getCurrentNewsItem, currentNewsIndex]);
+
+    // Track audio completion
+    useEffect(() => {
+        const handleAudioEnded = () => {
+            const currentItem = getCurrentNewsItem();
+            if (currentItem) {
+                trackEvent('audioCompleted', currentItem.id, currentItem.title, currentNewsIndex);
+            }
+        };
+
+        if (audioRef.current) {
+            audioRef.current.addEventListener('ended', handleAudioEnded);
+        }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.removeEventListener('ended', handleAudioEnded);
+            }
+        };
+    }, [audioRef, getCurrentNewsItem, currentNewsIndex]);
 
     return (
-        <ThemeProvider theme={theme}>
-            <GlobalStyle />
+        <>
             <BrandHeader />
             <AppContainer {...swipeHandlers}>
                 <FullScreenBackground src={newsItems?.[currentNewsIndex]?.image || defaultBg} />
@@ -328,7 +439,7 @@ const PlayerScreen = ({ newsItems, introAudio, setNewsData, currentNewsIndex, se
                     </Card>
                 </ContentContainer>
             </AppContainer>
-        </ThemeProvider>
+        </>
     );
 };
 

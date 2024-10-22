@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ThemeProvider } from 'styled-components';
-import theme from '../styles/theme';
-import GlobalStyle from '../styles/GlobalStyle';
 import { AppContainer, MainContent, ContentContainer, Header, Title, Subtitle, Button, Input, ErrorMessage, FormContainer, SubtitleDark } from '../styles/SharedComponents';
 import { useAuth } from '../utils/AuthProvider';
 import { useNavigate } from 'react-router-dom';
@@ -54,8 +51,7 @@ const Login = ({ onLoginSuccess, onLogout }) => {
 
     if (user) {
         return (
-            <ThemeProvider theme={theme}>
-                <GlobalStyle />
+            <>
                 <BrandHeader />
                 <AppContainer>
                     <ContentContainer>
@@ -68,13 +64,12 @@ const Login = ({ onLoginSuccess, onLogout }) => {
                         </MainContent>
                     </ContentContainer>
                 </AppContainer>
-            </ThemeProvider>
+            </>
         );
     }
 
     return (
-        <ThemeProvider theme={theme}>
-            <GlobalStyle />
+        <>
             <BrandHeader />
             <AppContainer>
                 <ContentContainer>
@@ -104,7 +99,7 @@ const Login = ({ onLoginSuccess, onLogout }) => {
                     </MainContent>
                 </ContentContainer>
             </AppContainer>
-        </ThemeProvider>
+        </>
     );
 };
 

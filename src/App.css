@@ -14,21 +14,6 @@ body {
   background-color: #f5f5f5;
 }
 
-/* Styling for all screens */
-.screen1, .screen2, .screen3 {
-  width: 320px;
-  height: 600px;
-  background-color: white;
-  border-radius: 25px;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
 
 /* Common title styling */
 h3 {
@@ -36,74 +21,6 @@ h3 {
   font-size: 18px;
   margin-bottom: 20px;
   text-align: center;
-}
-
-/* Screen1 specific styles */
-.screen1 .logo {
-  font-size: 24px;
-  color: #4a4a4a;
-  margin-bottom: 40px;
-}
-
-.screen1 p {
-  color: #4a4a4a;
-  font-size: 16px;
-  margin-bottom: 20px;
-}
-
-.screen1 input {
-  width: 80%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #cccccc;
-  margin-bottom: 20px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.screen1 button {
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  background-color: #4a90e2;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.screen1 button:hover {
-  background-color: #357abd;
-}
-
-/* Screen2 specific styles */
-.screen2 h2 {
-  color: #4a90e2;
-  font-size: 22px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.screen2 .news-audio {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.screen2 .rhap_container {
-  width: 100%;
-  box-shadow: none;
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-.screen2 .rhap_progress-indicator {
-  background-color: #4a90e2;
-}
-
-.screen2 .rhap_controls-section button {
-  color: #4a90e2;
 }
 
 /* Screen3 specific styles */

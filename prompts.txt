@@ -14,3 +14,6 @@ Following are the functional requirements of the app:
 ----------------------------------------------------------------------------------
 
 Can you please create App.css to try to create the style according to the shared screenshots
+
+TROUBLESHOOT INSTRUCTIONS:
+If you're confident you've found the root cause, explain it in detail. If you're not certain or don't have enough information to determine the cause, please say so clearly. It's better to admit uncertainty than to propose speculative fixes.

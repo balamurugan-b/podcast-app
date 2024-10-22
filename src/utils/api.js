@@ -141,20 +141,15 @@ export const refreshToken = async () => {
   }
 };
 
-export const rateNews = async (newsId, rating) => {
+export const trackEvents = async (events) => {
   try {
-    const response = await apiCall('/rateNews', 'POST', {
-      news_id: newsId,
-      rating: rating
-    });
-
+    const response = await apiCall('/tracking/track-event', 'POST', { events });
     if (!response.ok) {
-      throw new Error('Rating submission failed');
+      throw new Error('Failed to send events');
     }
-
     return await response.json();
   } catch (error) {
-    console.error('Error submitting rating:', error);
+    console.error('Error tracking events:', error);
     throw error;
   }
 };

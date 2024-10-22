@@ -68,3 +68,12 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+-----
+
+App specific notes:
+
+Everytime you install a new font using npm install font like this: npm install @fontsource/inter, make sure to copy it into the public folder.
+cp node_modules/@fontsource/inter/files/*.woff2 public/fonts/

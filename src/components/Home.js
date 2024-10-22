@@ -17,15 +17,14 @@ import { useAuth } from '../utils/AuthProvider';
 const HomeContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100%;
   background: ${({ theme }) => `linear-gradient(to top, ${theme.colors.primaryDarker}, ${theme.colors.primaryLight})`};
   color: #fff;
   padding: 2rem;
 
   @media (min-width: 768px) {
-  padding: 4rem;
+    padding: 4rem;
   }
-
 `;
 
 const MainContent = styled.div`

@@ -226,7 +226,7 @@ export const NewsInfo = styled.div.attrs(props => ({
 }))`
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
-  margin: 100px 20px;
+  margin: 100px 0;
   transition: transform 1s ease-out;
 `;
 
@@ -384,12 +384,11 @@ export const RatingMessage = styled.span.attrs(props => ({
 
 export const CategoryButton = styled.span`
   display: inline-block;
-  padding: 5px 10px;
   margin: 10px;
-  background-color: ${props => `${props.theme.colors.secondaryLight}99`};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colors.background};
   border-radius: 5px;
   font-weight: 500;
+  font-size: 1em;
 `;
 
 export const CategoryContainer = styled.div`
