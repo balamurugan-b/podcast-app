@@ -1,0 +1,2 @@
+20241023
+ - Recreate all the logos with some padding. Now its filling all the space and it doesn't look good.
