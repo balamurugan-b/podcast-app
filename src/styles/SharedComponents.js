@@ -28,6 +28,7 @@ export const HeaderContainer = styled.div`
   box-sizing: border-box;
   position: absolute;
   overflow: hidden;
+  padding: 10px 20px;
   z-index: 10;
   
   background-color: rgba(0, 0, 0, 0.5);
