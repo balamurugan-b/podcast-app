@@ -2,7 +2,7 @@
   "name": "podcast-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://getessence.app",  
+  "homepage": ".",
   "dependencies": {
     "@fontsource/comfortaa": "^5.0.22",
     "@fontsource/inter": "^5.0.21",
@@ -23,7 +23,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "env-cmd -f .env react-scripts start",
+    "build:dev": "env-cmd -f .env.dev react-scripts build",
+    "build:prod": "env-cmd -f .env.production react-scripts build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -45,5 +47,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
   }
 }
