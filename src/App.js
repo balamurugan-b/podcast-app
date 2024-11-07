@@ -127,21 +127,21 @@ const MainApp = () => {
       let shouldFetchNews = false;
       let fetchReason = '';
 
-      if (noLastFetchAttempt) {
-        shouldFetchNews = true;
-        fetchReason = 'No record of last fetch attempt';
-      } else if (lastFetchMoreThanTwoMinutesAgo) {
-        shouldFetchNews = true;
-        fetchReason = 'Last fetch was more than 2 minutes ago';
-      } else if (isNewLogin) {
+      if (isNewLogin) {
         shouldFetchNews = true;
         fetchReason = 'New login detected';
-      } else if (noArticles && lastFetchMoreThanTwoMinutesAgo) {
+      } else if (noArticles) {
         shouldFetchNews = true;
-        fetchReason = 'No articles and last fetch was more than 2 minutes ago';
+        fetchReason = 'No articles available';
+      } else if (noLastFetchAttempt) {
+        shouldFetchNews = true;
+        fetchReason = 'No record of last fetch attempt';
       } else if (nearEndOfArticles && lastFetchMoreThanTwoMinutesAgo) {
         shouldFetchNews = true;
         fetchReason = 'Near end of articles and last fetch was more than 2 minutes ago';
+      } else if (lastFetchMoreThanTwoMinutesAgo) {
+        shouldFetchNews = true;
+        fetchReason = 'Last fetch was more than 2 minutes ago';
       }
 
       const isInitialFetch = noArticles || isNewLogin;
